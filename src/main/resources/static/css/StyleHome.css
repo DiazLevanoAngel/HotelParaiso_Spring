@@ -1,0 +1,62 @@
+
+.navbar-principal {
+    background-color: #0d6efd;
+    color: #fff;
+    padding: 14px 20px;
+    position: sticky;
+    z-index: 10;
+    width: 100%;
+}
+
+.navbar-principal .d-flex {
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-hotel {
+    background-color: #0f172a;
+    min-height: 100vh;
+    border-radius: 0 0 150px 0;
+}
+
+.nav-link {
+    color: #dfeaf7;
+    text-decoration: none;
+}
+
+.nav-link:hover{
+    background: #60a5fa;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+main {
+    padding: 25px;
+}
+
+.estadistica-card,
+.tabla-reservas {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.514);
+}
+
+.estadistica-card {
+    width: 180px;
+    display: inline-block;
+    margin: 0 12px 12px 0;
+}
+
+.tabla-reservas {
+    margin-top: 20px;
+}
+
+th {
+    color: #0d6efd;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+}

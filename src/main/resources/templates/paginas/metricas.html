@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Métricas — Hotel Paraíso</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+          crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/metricas.css}">
+</head>
+<body>
+<div class="d-flex vh-100">
+    <aside th:replace="~{fragmentos/sidebar :: sidebar}"></aside>
+
+    <div class="d-flex flex-column flex-grow-1">
+        <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
+
+        <div class="container py-4">
+            <main>
+                <div class="content-head">
+                    <h2>Métricas del hotel</h2>
+                    <p class="text-secondary mb-0">Evolución mensual de los principales indicadores.</p>
+                </div>
+
+                <!-- TODO: estos SVG son estáticos; luego se pueden generar con th:attr="points=..." a partir de un MetricaService -->
+                <div class="row g-4">
+                    <div class="col-12 col-lg-6">
+                        <article class="card metric-card h-100">
+                            <div class="card-body">
+                                <h3 class="h5">Ocupación mensual</h3>
+                                <p class="metric-description">Porcentaje de ocupación registrado por mes.</p>
+                                <div class="line-chart" role="img" aria-label="Ocupación mensual: Enero 62%, Febrero 68%, Marzo 71%, Abril 76%, Mayo 73%, Junio 81%">
+                                    <span class="y-label y-top">100%</span><span class="y-label y-bottom">0%</span>
+                                    <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true"><line class="chart-axis" x1="42" y1="20" x2="42" y2="184"></line><line class="chart-axis" x1="42" y1="184" x2="580" y2="184"></line><line class="chart-grid" x1="42" y1="102" x2="580" y2="102"></line><polyline class="chart-line line-blue" points="42,82 150,72 258,67 366,59 474,63 580,51"></polyline><circle class="chart-dot dot-blue" cx="42" cy="82" r="5"></circle><circle class="chart-dot dot-blue" cx="150" cy="72" r="5"></circle><circle class="chart-dot dot-blue" cx="258" cy="67" r="5"></circle><circle class="chart-dot dot-blue" cx="366" cy="59" r="5"></circle><circle class="chart-dot dot-blue" cx="474" cy="63" r="5"></circle><circle class="chart-dot dot-blue" cx="580" cy="51" r="5"></circle></svg>
+                                    <div class="x-labels"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <article class="card metric-card h-100">
+                            <div class="card-body">
+                                <h3 class="h5">Ingresos mensuales</h3>
+                                <p class="metric-description">Ingresos generados en soles durante cada mes.</p>
+                                <div class="line-chart" role="img" aria-label="Ingresos mensuales: Enero 10200 soles, Febrero 11800 soles, Marzo 12450 soles, Abril 13200 soles, Mayo 14100 soles, Junio 15600 soles">
+                                    <span class="y-label y-top">S/ 16k</span><span class="y-label y-bottom">S/ 0</span>
+                                    <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true"><line class="chart-axis" x1="42" y1="20" x2="42" y2="184"></line><line class="chart-axis" x1="42" y1="184" x2="580" y2="184"></line><line class="chart-grid" x1="42" y1="102" x2="580" y2="102"></line><polyline class="chart-line line-green" points="42,80 150,63 258,55 366,48 474,39 580,24"></polyline><circle class="chart-dot dot-green" cx="42" cy="80" r="5"></circle><circle class="chart-dot dot-green" cx="150" cy="63" r="5"></circle><circle class="chart-dot dot-green" cx="258" cy="55" r="5"></circle><circle class="chart-dot dot-green" cx="366" cy="48" r="5"></circle><circle class="chart-dot dot-green" cx="474" cy="39" r="5"></circle><circle class="chart-dot dot-green" cx="580" cy="24" r="5"></circle></svg>
+                                    <div class="x-labels"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <article class="card metric-card h-100">
+                            <div class="card-body">
+                                <h3 class="h5">Reservas mensuales</h3>
+                                <p class="metric-description">Cantidad total de reservas registradas por mes.</p>
+                                <div class="line-chart" role="img" aria-label="Reservas mensuales: Enero 112, Febrero 128, Marzo 136, Abril 142, Mayo 151, Junio 168">
+                                    <span class="y-label y-top">180</span><span class="y-label y-bottom">0</span>
+                                    <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true"><line class="chart-axis" x1="42" y1="20" x2="42" y2="184"></line><line class="chart-axis" x1="42" y1="184" x2="580" y2="184"></line><line class="chart-grid" x1="42" y1="102" x2="580" y2="102"></line><polyline class="chart-line line-orange" points="42,82 150,68 258,61 366,56 474,47 580,31"></polyline><circle class="chart-dot dot-orange" cx="42" cy="82" r="5"></circle><circle class="chart-dot dot-orange" cx="150" cy="68" r="5"></circle><circle class="chart-dot dot-orange" cx="258" cy="61" r="5"></circle><circle class="chart-dot dot-orange" cx="366" cy="56" r="5"></circle><circle class="chart-dot dot-orange" cx="474" cy="47" r="5"></circle><circle class="chart-dot dot-orange" cx="580" cy="31" r="5"></circle></svg>
+                                    <div class="x-labels"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <article class="card metric-card h-100">
+                            <div class="card-body">
+                                <h3 class="h5">Cancelaciones mensuales</h3>
+                                <p class="metric-description">Cantidad total de reservas canceladas por mes.</p>
+                                <div class="line-chart" role="img" aria-label="Cancelaciones mensuales: Enero 12, Febrero 10, Marzo 14, Abril 9, Mayo 11, Junio 7">
+                                    <span class="y-label y-top">16</span><span class="y-label y-bottom">0</span>
+                                    <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true"><line class="chart-axis" x1="42" y1="20" x2="42" y2="184"></line><line class="chart-axis" x1="42" y1="184" x2="580" y2="184"></line><line class="chart-grid" x1="42" y1="102" x2="580" y2="102"></line><polyline class="chart-line line-red" points="42,61 150,82 258,41 366,92 474,72 580,113"></polyline><circle class="chart-dot dot-red" cx="42" cy="61" r="5"></circle><circle class="chart-dot dot-red" cx="150" cy="82" r="5"></circle><circle class="chart-dot dot-red" cx="258" cy="41" r="5"></circle><circle class="chart-dot dot-red" cx="366" cy="92" r="5"></circle><circle class="chart-dot dot-red" cx="474" cy="72" r="5"></circle><circle class="chart-dot dot-red" cx="580" cy="113" r="5"></circle></svg>
+                                    <div class="x-labels"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous">
+</script>
+</body>
+</html>

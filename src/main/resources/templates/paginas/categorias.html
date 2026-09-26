@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Categorías — Hotel Paraíso</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+        crossorigin="anonymous">
+  <link rel="stylesheet" th:href="@{/css/categorias.css}">
+</head>
+
+<body>
+<div class="d-flex vh-100">
+  <aside th:replace="~{fragmentos/sidebar :: sidebar}"></aside>
+
+  <div class="d-flex flex-column flex-grow-1">
+    <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
+
+    <div class="container">
+      <main>
+        <h1>Categorías</h1>
+        <p class="text-secondary"
+           th:text="${#lists.size(categorias)} + ' categorías registradas'">4 categorías registradas</p>
+
+        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalCategoria">
+          + Registrar categoría
+        </button>
+
+        <section class="tabla-reservas">
+          <h3>Lista de categorías</h3>
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Capacidad</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cat : ${categorias}">
+              <td th:text="${cat.nombre}">Individual</td>
+              <td th:text="${cat.descripcion}">Descripción</td>
+              <td th:text="${cat.capacidad} + ' pers.'">1 pers.</td>
+              <td>
+                <span th:if="${cat.estado == 'Activa'}" class="text-success" th:text="${cat.estado}">Activa</span>
+                <span th:unless="${cat.estado == 'Activa'}" class="text-danger" th:text="${cat.estado}">Inactiva</span>
+              </td>
+              <td>
+                <button class="btn btn-warning" type="button"
+                        data-bs-toggle="modal"
+                        th:data-bs-target="'#modalEditar' + ${cat.id}">Editar</button>
+                <a th:href="@{/categorias/eliminar/{id}(id=${cat.id})}"
+                   class="btn btn-danger">Eliminar</a>
+              </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(categorias)}">
+              <td colspan="5" class="text-center text-secondary">
+                No hay categorías registradas todavía.
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Modal: registrar nueva categoría -->
+        <div class="modal fade" id="modalCategoria" tabindex="-1">
+          <div class="modal-dialog">
+            <form th:action="@{/categorias/guardar}" th:object="${categoria}" method="post" class="modal-content">
+              <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Registrar categoría</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" th:field="*{id}">
+
+                <label class="text-primary">Nombre</label>
+                <input class="form-control mb-2" type="text" th:field="*{nombre}" placeholder="Ej. Suite Junior">
+
+                <label class="text-primary">Descripción</label>
+                <textarea class="form-control mb-2" rows="2" th:field="*{descripcion}"></textarea>
+
+                <label class="text-primary">Capacidad</label>
+                <input class="form-control mb-2" type="number" min="1" th:field="*{capacidad}">
+
+                <label class="text-primary">Estado</label>
+                <select class="form-select" th:field="*{estado}">
+                  <option value="Activa">Activa</option>
+                  <option value="Inactiva">Inactiva</option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Modales: editar categoría (uno por fila, fuera de la tabla) -->
+        <div class="modal fade" th:each="cat : ${categorias}" th:id="'modalEditar' + ${cat.id}" tabindex="-1">
+          <div class="modal-dialog">
+            <form th:action="@{/categorias/guardar}" method="post" class="modal-content">
+              <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Editar categoría</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" name="id" th:value="${cat.id}">
+
+                <label class="text-primary">Nombre</label>
+                <input class="form-control mb-2" type="text" name="nombre" th:value="${cat.nombre}">
+
+                <label class="text-primary">Descripción</label>
+                <textarea class="form-control mb-2" rows="2" name="descripcion" th:text="${cat.descripcion}"></textarea>
+
+                <label class="text-primary">Capacidad</label>
+                <input class="form-control mb-2" type="number" min="1" name="capacidad" th:value="${cat.capacidad}">
+
+                <label class="text-primary">Estado</label>
+                <select class="form-select" name="estado">
+                  <option value="Activa" th:selected="${cat.estado == 'Activa'}">Activa</option>
+                  <option value="Inactiva" th:selected="${cat.estado == 'Inactiva'}">Inactiva</option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous">
+</script>
+</body>
+</html>
