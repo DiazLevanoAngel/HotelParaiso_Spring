@@ -1,130 +1,161 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Habitaciones — Hotel Paraíso</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-          crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/habitaciones.css}">
 </head>
+
 <body>
-<div class="d-flex vh-100">
-    <aside th:replace="~{fragmentos/sidebar :: sidebar}"></aside>
+    <div class="d-flex vh-100">
+        <aside th:replace="~{fragmentos/sidebar :: sidebar}"></aside>
 
-    <div class="d-flex flex-column flex-grow-1">
-        <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
+        <div class="d-flex flex-column flex-grow-1">
+            <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
 
-        <div class="container">
-            <main>
-                <h1>Habitaciones</h1>
-                <p class="text-secondary">5 habitaciones registradas</p>
+            <div class="container">
+                <main>
+                    <h1>Habitaciones</h1>
+                    <p class="text-secondary" th:text="${#lists.size(habitaciones)} + ' habitaciones registradas'"></p>
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                    <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
 
-                <!-- TODO: al crear HabitacionController/Service, este botón abrirá el modal para POST /habitaciones/guardar -->
-                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalHabitacion">
-                    + Registrar habitación
-                </button>
 
-                <section class="tabla-reservas">
-                    <h2 class="mt-2">Lista de habitaciones</h2>
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>N°</th>
-                            <th>Categoría</th>
-                            <th>Capacidad</th>
-                            <th>Precio</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <!-- TODO: th:each="h : ${habitaciones}" -->
-                        <tr>
-                            <td>101</td>
-                            <td>Individual</td>
-                            <td>1 pers.</td>
-                            <td>S/. 120</td>
-                            <td><span class="text-success">Disponible</span></td>
-                            <td>
-                                <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#modalHabitacion">Editar</button>
-                                <button class="btn btn-danger" type="button">Eliminar</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>102</td>
-                            <td>Doble Superior</td>
-                            <td>3 pers.</td>
-                            <td>S/. 190</td>
-                            <td><span class="text-danger">Ocupada</span></td>
-                            <td>
-                                <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#modalHabitacion">Editar</button>
-                                <button class="btn btn-danger" type="button">Eliminar</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>201</td>
-                            <td>Suite Ejecutiva</td>
-                            <td>4 pers.</td>
-                            <td>S/. 320</td>
-                            <td><span class="text-success">Disponible</span></td>
-                            <td>
-                                <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#modalHabitacion">Editar</button>
-                                <button class="btn btn-danger" type="button">Eliminar</button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </section>
+                    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalHabitacion">
+                        + Registrar habitación
+                    </button>
 
-                <div class="modal fade" id="modalHabitacion">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5>Registrar habitación</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <label class="text-primary">Número</label>
-                                <input class="form-control mb-2" type="text" placeholder="Ej. 103">
+                    <section class="tabla-reservas">
+                        <h2 class="mt-2">Lista de habitaciones</h2>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Categoría</th>
+                                    <th>Capacidad</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="hab : ${habitaciones}">
+                                    <td th:text="${hab.numero}"></td>
+                                    <td th:text="${@categoriaService.buscarPorID(hab.categoriaId)?.nombre}"></td>
+                                    <td
+                                        th:text="${@categoriaService.buscarPorID(hab.categoriaId)?.capacidad} + ' pers.'">
+                                    </td>
+                                    <td th:text="'S/. ' + ${#numbers.formatDecimal(hab.precio, 1, 2)}"></td>
+                                    <td>
+                                        <span th:if="${hab.estado == 'Disponible'}" class="text-success"
+                                            th:text="${hab.estado}"></span>
+                                        <span th:unless="${hab.estado == 'Disponible'}" class="text-danger"
+                                            th:text="${hab.estado}"></span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-warning" type="button" data-bs-toggle="modal"
+                                            th:data-bs-target="'#modalEditar' + ${hab.id}">Editar</button>
+                                        <a th:href="@{/habitaciones/eliminar/{id}(id=${hab.id})}" class="btn btn-danger"
+                                            onclick="return confirm('¿Eliminar esta habitación?');">Eliminar</a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(habitaciones)}">
+                                    <td colspan="6" class="text-center text-secondary">No hay habitaciones registradas
+                                        todavía.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
 
-                                <label class="text-primary">Categoría</label>
-                                <!-- TODO: reemplazar por th:each sobre categoriaService.listar() cuando se conecte -->
-                                <select class="form-select mb-2">
-                                    <option>Individual</option>
-                                    <option>Doble Superior</option>
-                                    <option>Suite Ejecutiva</option>
-                                    <option>Familiar</option>
-                                </select>
+                    <div class="modal fade" id="modalHabitacion">
+                        <div class="modal-dialog">
+                            <form th:action="@{/habitaciones/guardar}" th:object="${habitacion}" method="post"
+                                class="modal-content">
+                                <input type="hidden" th:field="*{id}">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5>Registrar habitación</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <label class="text-primary">Número</label>
+                                    <input class="form-control mb-2" type="text" th:field="*{numero}"
+                                        placeholder="Ej. 103" required>
 
-                                <label class="text-primary">Capacidad</label>
-                                <input class="form-control mb-2" type="number" min="1">
+                                    <label class="text-primary">Categoría</label>
+                                    <select class="form-select mb-2" th:field="*{categoriaId}">
+                                        <option th:each="cat : ${categorias}" th:value="${cat.id}"
+                                            th:text="${cat.nombre}"></option>
+                                    </select>
 
-                                <label class="text-primary">Precio por noche (S/.)</label>
-                                <input class="form-control mb-2" type="number">
+                                    <label class="text-primary">Precio por noche (S/.)</label>
+                                    <input class="form-control mb-2" type="number" step="0.01" min="0"
+                                        th:field="*{precio}">
 
-                                <label class="text-primary">Estado</label>
-                                <select class="form-select">
-                                    <option>Disponible</option>
-                                    <option>Ocupada</option>
-                                </select>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-primary">Guardar</button>
-                            </div>
+                                    <label class="text-primary">Estado</label>
+                                    <select class="form-select" th:field="*{estado}">
+                                        <option value="Disponible">Disponible</option>
+                                        <option value="Ocupada">Ocupada</option>
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                </div>
-            </main>
+
+                    <div class="modal fade" th:each="hab : ${habitaciones}" th:id="'modalEditar' + ${hab.id}">
+                        <div class="modal-dialog">
+                            <form th:action="@{/habitaciones/guardar}" method="post" class="modal-content">
+                                <input type="hidden" name="id" th:value="${hab.id}">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5>Editar habitación</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <label class="text-primary">Número</label>
+                                    <input class="form-control mb-2" type="text" name="numero" th:value="${hab.numero}"
+                                        required>
+
+                                    <label class="text-primary">Categoría</label>
+                                    <select class="form-select mb-2" name="categoriaId">
+                                        <option th:each="cat : ${categorias}" th:value="${cat.id}"
+                                            th:text="${cat.nombre}" th:selected="${cat.id == hab.categoriaId}"></option>
+                                    </select>
+
+                                    <label class="text-primary">Precio por noche (S/.)</label>
+                                    <input class="form-control mb-2" type="number" step="0.01" min="0" name="precio"
+                                        th:value="${hab.precio}">
+
+                                    <label class="text-primary">Estado</label>
+                                    <select class="form-select" name="estado">
+                                        <option value="Disponible" th:selected="${hab.estado == 'Disponible'}">
+                                            Disponible</option>
+                                        <option value="Ocupada" th:selected="${hab.estado == 'Ocupada'}">Ocupada
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </main>
+            </div>
         </div>
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous">
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+        </script>
 </body>
+
 </html>

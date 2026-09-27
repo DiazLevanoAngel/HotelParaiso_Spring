@@ -16,11 +16,6 @@ public class PaginaController {
         return "paginas/home";
     }
 
-    @GetMapping("/habitaciones")
-    public String habitaciones() {
-        return "paginas/habitaciones";
-    }
-
     @GetMapping("/clientes")
     public String clientes() {
         return "paginas/clientes";
