@@ -22,14 +22,13 @@
                 <h1>Inicio</h1>
                 <p class="text-secondary">Resumen general de la operación del hotel</p>
 
-                <!-- TODO: reemplazar por datos reales cuando existan los servicios de reservas/clientes/pagos -->
                 <section class="d-flex gap-3 mb-4">
                     <div class="estadistica-card">
                         <h2 class="text-primary">3</h2>
                         <p>Habitaciones disponibles</p>
                     </div>
                     <div class="estadistica-card">
-                        <h2 class="text-primary">2</h2>
+                        <h2 class="text-primary" th:text="${reservasActivas}">0</h2>
                         <p>Reservas activas</p>
                     </div>
                     <div class="estadistica-card">
@@ -54,24 +53,17 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <!-- TODO: th:each="r : ${reservas}" cuando exista ReservaService -->
-                        <tr>
-                            <td>Bruno Benites Lizárbe</td>
-                            <td>102</td>
-                            <td>2026-09-02 → 2026-09-05</td>
-                            <td><span class="text-success">Confirmada</span></td>
+                        <tr th:each="r : ${reservas}">
+                            <td th:text="${r.cliente}"></td>
+                            <td th:text="${r.habitacion}"></td>
+                            <td th:text="${r.checkIn} + ' → ' + ${r.checkOut}"></td>
+                            <td>
+                                <span th:class="${r.estado == 'Cancelada' ? 'text-danger' : (r.estado == 'Confirmada' ? 'text-success' : 'text-warning')}"
+                                      th:text="${r.estado}"></span>
+                            </td>
                         </tr>
-                        <tr>
-                            <td>Ismael Escudero Romero</td>
-                            <td>301</td>
-                            <td>2026-09-04 → 2026-09-07</td>
-                            <td><span class="text-warning">Pendiente</span></td>
-                        </tr>
-                        <tr>
-                            <td>Ángel Díaz Levano</td>
-                            <td>201</td>
-                            <td>2026-08-20 → 2026-08-22</td>
-                            <td><span class="text-danger">Cancelada</span></td>
+                        <tr th:if="${#lists.isEmpty(reservas)}">
+                            <td colspan="4" class="text-center text-secondary">No hay reservas registradas todavía.</td>
                         </tr>
                         </tbody>
                     </table>
