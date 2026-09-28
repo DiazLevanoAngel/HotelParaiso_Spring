@@ -39,7 +39,7 @@
                             <th>Habitación</th>
                             <th>Check-in</th>
                             <th>Check-out</th>
-                            <th>Huéspedes</th>
+                            <th>Capacidad</th>
                             <th>Monto total</th>
                             <th>Estado</th>
                             <th>Acciones</th>
@@ -51,7 +51,7 @@
                             <td th:text="${r.habitacion}"></td>
                             <td th:text="${r.checkIn}"></td>
                             <td th:text="${r.checkOut}"></td>
-                            <td th:text="${r.huespedes}"></td>
+                            <td th:text="${r.huespedes} + ' personas'"></td>
                             <td th:text="'S/. ' + ${#numbers.formatDecimal(r.monto, 1, 2)}"></td>
                             <td>
                                 <span th:if="${r.estado == 'Cancelada'}" class="text-danger" th:text="${r.estado}"></span>
@@ -65,10 +65,14 @@
                                         data-bs-toggle="modal"
                                         th:data-bs-target="'#modalEditar' + ${r.id}">Editar</button>
                                 <form th:action="@{/reservas/eliminar/{id}(id=${r.id})}" method="post"
-                                      class="d-inline"
-                                      onsubmit="return confirm('¿Eliminar esta reserva?');">
+                                      class="d-inline">
                                     <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
                                 </form>
+                                <button class="btn btn-info btn-sm" type="button"
+                                        data-bs-toggle="modal"
+                                        th:data-bs-target="'#modalAmpliar' + ${r.id}">
+                                    Ampliar estadía
+                                </button>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(reservas)}">
@@ -79,6 +83,28 @@
                         </tbody>
                     </table>
                 </section>
+
+                <div class="modal fade" th:each="r : ${reservas}" th:id="'modalAmpliar' + ${r.id}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <form th:action="@{/reservas/ampliar/{id}(id=${r.id})}" method="post" class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title">Ampliar estadía</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Salida actual: <strong th:text="${r.checkOut}"></strong></p>
+                                <label class="text-primary">Nueva fecha de salida</label>
+                                <input class="form-control" type="date" name="checkOut"
+                                       th:value="${r.checkOut}" required>
+                                <small class="text-secondary">La habitación debe estar libre en las nuevas fechas.</small>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-info">Guardar ampliación</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <!-- Modal: Registrar reserva -->
                 <div class="modal fade" id="modalReserva" tabindex="-1">
@@ -108,8 +134,7 @@
                                         <option th:each="h : ${habitaciones}"
                                                 th:if="${h.estado == 'Disponible'}"
                                                 th:value="${h.numero}"
-                                                th:data-precio="${h.precio}"
-                                                th:text="'Hab. ' + ${h.numero} + ' — S/. ' + ${#numbers.formatDecimal(h.precio, 1, 2)} + ' por noche'">
+                                                th:text="'Hab. ' + ${h.numero} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.nombre} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.capacidad} + ' personas'">
                                         </option>
                                     </select>
 
@@ -118,13 +143,6 @@
 
                                     <label class="text-primary">Check-out</label>
                                     <input class="form-control mb-2 fecha-salida" type="date" th:field="*{checkOut}" required>
-
-                                    <label class="text-primary">Huéspedes</label>
-                                    <input class="form-control mb-2" type="number" min="1" th:field="*{huespedes}" required>
-
-                                    <label class="text-primary">Monto total</label>
-                                    <input class="form-control mb-3 monto-total" type="text" readonly
-                                           placeholder="Se calcula según las noches">
 
                                     <div class="d-flex justify-content-end gap-2">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -165,9 +183,8 @@
                                         <option th:each="h : ${habitaciones}"
                                                 th:if="${h.estado == 'Disponible' or h.numero == r.habitacion}"
                                                 th:value="${h.numero}"
-                                                th:data-precio="${h.precio}"
                                                 th:selected="${h.numero == r.habitacion}"
-                                                th:text="'Hab. ' + ${h.numero} + ' — S/. ' + ${#numbers.formatDecimal(h.precio, 1, 2)} + ' por noche'">
+                                                th:text="'Hab. ' + ${h.numero} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.nombre} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.capacidad} + ' personas'">
                                         </option>
                                     </select>
 
@@ -179,13 +196,6 @@
                                     <input class="form-control mb-2 fecha-salida" type="date" name="checkOut"
                                            th:value="${r.checkOut}" required>
 
-                                    <label class="text-primary">Huéspedes</label>
-                                    <input class="form-control mb-2" type="number" min="1" name="huespedes"
-                                           th:value="${r.huespedes}" required>
-
-                                    <label class="text-primary">Monto total</label>
-                                    <input class="form-control mb-2 monto-total" type="text" readonly
-                                           placeholder="Se calcula según las noches">
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -202,41 +212,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous">
-</script>
-<script>
-    // Muestra el monto total (precio por noche x noches) en cada formulario de reserva.
-    // El monto real lo vuelve a calcular el servidor al guardar.
-    function calcularMonto(form) {
-        var select = form.querySelector('.sel-habitacion');
-        var entrada = form.querySelector('.fecha-entrada').value;
-        var salida = form.querySelector('.fecha-salida').value;
-        var campo = form.querySelector('.monto-total');
-
-        var opcion = select.options[select.selectedIndex];
-        var precio = parseFloat(opcion.getAttribute('data-precio'));
-
-        if (entrada === '' || salida === '' || isNaN(precio)) {
-            campo.value = '';
-            return;
-        }
-
-        var noches = Math.round((new Date(salida) - new Date(entrada)) / 86400000);
-        if (noches <= 0) {
-            campo.value = 'La salida debe ser posterior a la entrada';
-            return;
-        }
-
-        campo.value = 'S/. ' + (precio * noches).toFixed(2) + ' (' + noches + ' noche(s))';
-    }
-
-    var formularios = document.querySelectorAll('.form-reserva');
-    for (var i = 0; i < formularios.length; i++) {
-        var form = formularios[i];
-        form.addEventListener('change', function () {
-            calcularMonto(this);
-        });
-        calcularMonto(form);
-    }
 </script>
 </body>
 </html>

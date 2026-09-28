@@ -35,6 +35,7 @@
                   <th>Nombre</th>
                   <th>Descripción</th>
                   <th>Capacidad</th>
+                  <th>Precio por noche</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -44,6 +45,7 @@
                   <td th:text="${cat.nombre}">Individual</td>
                   <td th:text="${cat.descripcion}">Descripción</td>
                   <td th:text="${cat.capacidad} + ' pers.'">1 pers.</td>
+                  <td th:text="'S/. ' + ${#numbers.formatDecimal(cat.precio, 1, 2)}"></td>
                   <td>
                     <span th:if="${cat.estado == 'Activa'}" class="text-success" th:text="${cat.estado}">Activa</span>
                     <span th:unless="${cat.estado == 'Activa'}" class="text-danger"
@@ -57,7 +59,7 @@
                 </tr>
 
                 <tr th:if="${#lists.isEmpty(categorias)}">
-                  <td colspan="5" class="text-center text-secondary">
+                  <td colspan="6" class="text-center text-secondary">
                     No hay categorías registradas todavía.
                   </td>
                 </tr>
@@ -84,6 +86,9 @@
 
                   <label class="text-primary">Capacidad</label>
                   <input class="form-control mb-2" type="number" min="1" th:field="*{capacidad}">
+
+                  <label class="text-primary">Precio por noche (S/.)</label>
+                  <input class="form-control mb-2" type="number" step="0.01" min="0" th:field="*{precio}">
 
                   <label class="text-primary">Estado</label>
                   <select class="form-select" th:field="*{estado}">
@@ -119,6 +124,10 @@
 
                   <label class="text-primary">Capacidad</label>
                   <input class="form-control mb-2" type="number" min="1" name="capacidad" th:value="${cat.capacidad}">
+
+                  <label class="text-primary">Precio por noche (S/.)</label>
+                  <input class="form-control mb-2" type="number" step="0.01" min="0" name="precio"
+                         th:value="${cat.precio}">
 
                   <label class="text-primary">Estado</label>
                   <select class="form-select" name="estado">

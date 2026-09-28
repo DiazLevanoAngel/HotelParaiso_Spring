@@ -10,6 +10,7 @@ public class Reserva {
     private LocalDate checkOut;
     private int huespedes;
     private Double monto;
+    private Double montoPagado = 0.0;
     private String estado = "Pendiente";
 
     public int getId() {
@@ -66,6 +67,14 @@ public class Reserva {
 
     public void setMonto(Double monto) {
         this.monto = monto;
+    }
+
+    public Double getMontoPagado() {
+        return montoPagado;
+    }
+
+    public void setMontoPagado(Double montoPagado) {
+        this.montoPagado = montoPagado;
     }
 
     public String getEstado() {

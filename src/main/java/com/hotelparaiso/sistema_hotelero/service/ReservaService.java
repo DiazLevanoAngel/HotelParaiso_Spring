@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 @Service
 public class ReservaService {
@@ -38,6 +39,44 @@ public class ReservaService {
             }
         }
         return total;
+    }
+
+    public int contarPorCliente(String cliente) {
+        int total = 0;
+        for (Reserva reserva : reservas) {
+            if (cliente.equalsIgnoreCase(reserva.getCliente())) {
+                total++;
+            }
+        }
+        return total;
+    }
+
+    public boolean tieneReservasCliente(String cliente) {
+        return contarPorCliente(cliente) > 0;
+    }
+
+    public boolean tieneReservasHabitacion(String habitacion) {
+        for (Reserva reserva : reservas) {
+            if (habitacion.equalsIgnoreCase(reserva.getHabitacion())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean habitacionDisponible(String habitacion, LocalDate entrada,
+                                        LocalDate salida, int idExcluir) {
+        for (Reserva reserva : reservas) {
+            boolean mismaHabitacion = habitacion.equalsIgnoreCase(reserva.getHabitacion());
+            boolean activa = !"Cancelada".equals(reserva.getEstado());
+            boolean seCruzan = entrada.isBefore(reserva.getCheckOut())
+                    && salida.isAfter(reserva.getCheckIn());
+
+            if (reserva.getId() != idExcluir && mismaHabitacion && activa && seCruzan) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public Reserva guardarReserva(Reserva reserva) {

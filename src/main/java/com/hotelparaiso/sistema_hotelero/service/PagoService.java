@@ -30,6 +30,15 @@ public class PagoService {
         return null;
     }
 
+    public Pago buscarPorReserva(int reservaId) {
+        for (Pago pago : pagos) {
+            if (pago.getReservaId() == reservaId) {
+                return pago;
+            }
+        }
+        return null;
+    }
+
     public double totalIngresos() {
         double total = 0;
         for (Pago pago : pagos) {

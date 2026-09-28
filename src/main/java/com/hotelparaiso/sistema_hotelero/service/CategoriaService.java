@@ -10,7 +10,6 @@ import java.util.List;
 public class CategoriaService {
 
     private List<Categoria> categorias = new ArrayList<>();
-
     private int contadorId = 0;
 
     public List<Categoria> listar() {

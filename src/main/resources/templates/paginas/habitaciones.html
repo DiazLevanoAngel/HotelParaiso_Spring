@@ -35,6 +35,7 @@
                             <thead>
                                 <tr>
                                     <th>N°</th>
+                                    <th>Descripción</th>
                                     <th>Categoría</th>
                                     <th>Capacidad</th>
                                     <th>Precio</th>
@@ -45,11 +46,12 @@
                             <tbody>
                                 <tr th:each="hab : ${habitaciones}">
                                     <td th:text="${hab.numero}"></td>
+                                    <td th:text="${hab.descripcion}"></td>
                                     <td th:text="${@categoriaService.buscarPorID(hab.categoriaId)?.nombre}"></td>
                                     <td
                                         th:text="${@categoriaService.buscarPorID(hab.categoriaId)?.capacidad} + ' pers.'">
                                     </td>
-                                    <td th:text="'S/. ' + ${#numbers.formatDecimal(hab.precio, 1, 2)}"></td>
+                                    <td th:text="'S/. ' + ${#numbers.formatDecimal(@categoriaService.buscarPorID(hab.categoriaId)?.precio, 1, 2)}"></td>
                                     <td>
                                         <span th:if="${hab.estado == 'Disponible'}" class="text-success"
                                             th:text="${hab.estado}"></span>
@@ -59,12 +61,11 @@
                                     <td>
                                         <button class="btn btn-warning" type="button" data-bs-toggle="modal"
                                             th:data-bs-target="'#modalEditar' + ${hab.id}">Editar</button>
-                                        <a th:href="@{/habitaciones/eliminar/{id}(id=${hab.id})}" class="btn btn-danger"
-                                            onclick="return confirm('¿Eliminar esta habitación?');">Eliminar</a>
+                                        <a th:href="@{/habitaciones/eliminar/{id}(id=${hab.id})}" class="btn btn-danger">Eliminar</a>
                                     </td>
                                 </tr>
                                 <tr th:if="${#lists.isEmpty(habitaciones)}">
-                                    <td colspan="6" class="text-center text-secondary">No hay habitaciones registradas
+                                    <td colspan="7" class="text-center text-secondary">No hay habitaciones registradas
                                         todavía.</td>
                                 </tr>
                             </tbody>
@@ -85,20 +86,20 @@
                                     <input class="form-control mb-2" type="text" th:field="*{numero}"
                                         placeholder="Ej. 103" required>
 
+                                    <label class="text-primary">Descripción</label>
+                                    <textarea class="form-control mb-2" name="descripcion"></textarea>
+
                                     <label class="text-primary">Categoría</label>
                                     <select class="form-select mb-2" th:field="*{categoriaId}">
                                         <option th:each="cat : ${categorias}" th:value="${cat.id}"
                                             th:text="${cat.nombre}"></option>
                                     </select>
 
-                                    <label class="text-primary">Precio por noche (S/.)</label>
-                                    <input class="form-control mb-2" type="number" step="0.01" min="0"
-                                        th:field="*{precio}">
-
                                     <label class="text-primary">Estado</label>
                                     <select class="form-select" th:field="*{estado}">
                                         <option value="Disponible">Disponible</option>
                                         <option value="Ocupada">Ocupada</option>
+                                        <option value="Fuera de servicio">Fuera de servicio</option>
                                     </select>
                                 </div>
                                 <div class="modal-footer">
@@ -123,15 +124,15 @@
                                     <input class="form-control mb-2" type="text" name="numero" th:value="${hab.numero}"
                                         required>
 
+                                    <label class="text-primary">Descripción</label>
+                                    <textarea class="form-control mb-2" name="descripcion"
+                                              th:text="${hab.descripcion}"></textarea>
+
                                     <label class="text-primary">Categoría</label>
                                     <select class="form-select mb-2" name="categoriaId">
                                         <option th:each="cat : ${categorias}" th:value="${cat.id}"
                                             th:text="${cat.nombre}" th:selected="${cat.id == hab.categoriaId}"></option>
                                     </select>
-
-                                    <label class="text-primary">Precio por noche (S/.)</label>
-                                    <input class="form-control mb-2" type="number" step="0.01" min="0" name="precio"
-                                        th:value="${hab.precio}">
 
                                     <label class="text-primary">Estado</label>
                                     <select class="form-select" name="estado">
@@ -139,6 +140,8 @@
                                             Disponible</option>
                                         <option value="Ocupada" th:selected="${hab.estado == 'Ocupada'}">Ocupada
                                         </option>
+                                        <option value="Fuera de servicio"
+                                                th:selected="${hab.estado == 'Fuera de servicio'}">Fuera de servicio</option>
                                     </select>
                                 </div>
                                 <div class="modal-footer">

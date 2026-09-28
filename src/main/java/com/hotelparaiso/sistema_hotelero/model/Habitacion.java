@@ -3,8 +3,8 @@ package com.hotelparaiso.sistema_hotelero.model;
 public class Habitacion {
     private int id;
     private String numero;
+    private String descripcion;
     private int categoriaId;
-    private double precio;
     private String estado;
 
     public int getId() {
@@ -24,20 +24,20 @@ public class Habitacion {
 
     }
 
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
     public int getCategoriaId() {
         return categoriaId;
     }
 
     public void setCategoriaId(int categoriaId) {
         this.categoriaId = categoriaId;
-    }
-
-    public double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(double precio) {
-        this.precio = precio;
     }
 
     public String getEstado() {

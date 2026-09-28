@@ -34,7 +34,7 @@ public class PagoController {
 
         List<Reserva> pendientes = new ArrayList<>();
         for (Reserva r : reservaService.listar()) {
-            if ("Pendiente".equals(r.getEstado())) {
+            if (r.getMontoPagado() < r.getMonto()) {
                 pendientes.add(r);
             }
         }
@@ -46,17 +46,33 @@ public class PagoController {
     }
 
     @PostMapping("/pagos/guardar")
-    public String guardar(@ModelAttribute Pago pago) {
+    public String guardar(@ModelAttribute Pago pago, @org.springframework.web.bind.annotation.RequestParam String tipoPago) {
         Reserva reserva = reservaService.buscarPorID(pago.getReservaId());
 
-        if (reserva != null && "Pendiente".equals(reserva.getEstado())) {
-            pago.setId(0);
-            pago.setCliente(reserva.getCliente());
-            pago.setHabitacion(reserva.getHabitacion());
-            pago.setMonto(reserva.getMonto());
-            pagoService.guardarPago(pago);
+        if (reserva != null && reserva.getMontoPagado() < reserva.getMonto()) {
+            double falta = reserva.getMonto() - reserva.getMontoPagado();
+            double adelanto = reserva.getMonto() * 0.50 - reserva.getMontoPagado();
+            pago.setMonto("adelanto".equals(tipoPago) ? Math.max(0, adelanto) : falta);
+            if (pago.getMonto() <= 0) {
+                return "redirect:/pagos";
+            }
+            Pago pagoRegistrado = pagoService.buscarPorReserva(reserva.getId());
+            if (pagoRegistrado == null) {
+                pago.setId(0);
+                pago.setCliente(reserva.getCliente());
+                pago.setHabitacion(reserva.getHabitacion());
+                pagoService.guardarPago(pago);
+            } else {
+                pagoRegistrado.setMonto(pagoRegistrado.getMonto() + pago.getMonto());
+                pagoRegistrado.setMetodoPago(pago.getMetodoPago());
+                pagoRegistrado.setFecha(pago.getFecha());
+                pagoService.guardarPago(pagoRegistrado);
+            }
 
-            reserva.setEstado("Confirmada");
+            reserva.setMontoPagado(reserva.getMontoPagado() + pago.getMonto());
+            if (reserva.getMontoPagado() >= reserva.getMonto() * 0.50) {
+                reserva.setEstado("Confirmada");
+            }
         }
         return "redirect:/pagos";
     }
@@ -66,8 +82,13 @@ public class PagoController {
         Pago pago = pagoService.buscarPorID(id);
         if (pago != null) {
             Reserva reserva = reservaService.buscarPorID(pago.getReservaId());
-            if (reserva != null && "Confirmada".equals(reserva.getEstado())) {
-                reserva.setEstado("Pendiente");
+            if (reserva != null) {
+                reserva.setMontoPagado(Math.max(0, reserva.getMontoPagado() - pago.getMonto()));
+                if (reserva.getMontoPagado() >= reserva.getMonto() * 0.50) {
+                    reserva.setEstado("Confirmada");
+                } else {
+                    reserva.setEstado("Pendiente");
+                }
             }
             pagoService.eliminar(id);
         }

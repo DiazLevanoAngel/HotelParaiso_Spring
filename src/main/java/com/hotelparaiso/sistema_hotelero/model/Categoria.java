@@ -6,6 +6,7 @@ public class Categoria {
     private String nombre;
     private String descripcion;
     private int capacidad;
+    private double precio;
     private String estado;
 
     public int getId() {
@@ -34,6 +35,14 @@ public class Categoria {
     }
     public void setCapacidad(int capacidad) {
         this.capacidad = capacidad;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
     }
 
     public String getEstado() {

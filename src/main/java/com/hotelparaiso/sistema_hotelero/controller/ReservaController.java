@@ -4,6 +4,7 @@ package com.hotelparaiso.sistema_hotelero.controller;
 import com.hotelparaiso.sistema_hotelero.model.Habitacion;
 import com.hotelparaiso.sistema_hotelero.model.Reserva;
 import com.hotelparaiso.sistema_hotelero.service.ClienteService;
+import com.hotelparaiso.sistema_hotelero.service.CategoriaService;
 import com.hotelparaiso.sistema_hotelero.service.HabitacionService;
 import com.hotelparaiso.sistema_hotelero.service.ReservaService;
 import org.springframework.stereotype.Controller;
@@ -21,13 +22,16 @@ public class ReservaController {
     private ReservaService reservaService;
     private ClienteService clienteService;
     private HabitacionService habitacionService;
+    private CategoriaService categoriaService;
 
     public ReservaController(ReservaService reservaService,
                              ClienteService clienteService,
-                             HabitacionService habitacionService) {
+                             HabitacionService habitacionService,
+                             CategoriaService categoriaService) {
         this.reservaService = reservaService;
         this.clienteService = clienteService;
         this.habitacionService = habitacionService;
+        this.categoriaService = categoriaService;
     }
 
     @GetMapping("/reservas")
@@ -46,8 +50,42 @@ public class ReservaController {
                 && reserva.getCheckOut().isAfter(reserva.getCheckIn());
 
         if (habitacion != null && fechasOk) {
+            var categoria = categoriaService.buscarPorID(habitacion.getCategoriaId());
+            if (categoria == null) {
+                return "redirect:/reservas";
+            }
+            reserva.setHuespedes(categoria.getCapacidad());
+            boolean fechasLibres = reservaService.habitacionDisponible(
+                    reserva.getHabitacion(), reserva.getCheckIn(), reserva.getCheckOut(), reserva.getId());
+            if (!fechasLibres) {
+                return "redirect:/reservas";
+            }
             long noches = ChronoUnit.DAYS.between(reserva.getCheckIn(), reserva.getCheckOut());
-            reserva.setMonto(habitacion.getPrecio() * noches);
+            reserva.setMonto(categoria.getPrecio() * noches);
+            if (reservaService.contarPorCliente(reserva.getCliente()) >= 4) {
+                reserva.setMonto(reserva.getMonto() * 0.85);
+            }
+            reservaService.guardarReserva(reserva);
+        }
+        return "redirect:/reservas";
+    }
+
+    @PostMapping("/reservas/ampliar/{id}")
+    public String ampliar(@PathVariable int id, @ModelAttribute Reserva datos) {
+        Reserva reserva = reservaService.buscarPorID(id);
+        Habitacion habitacion = reserva == null ? null : habitacionService.buscarPorNumero(reserva.getHabitacion());
+        var categoria = habitacion == null ? null : categoriaService.buscarPorID(habitacion.getCategoriaId());
+
+        if (reserva != null && habitacion != null && categoria != null && datos.getCheckOut() != null
+                && datos.getCheckOut().isAfter(reserva.getCheckOut())
+                && reservaService.habitacionDisponible(reserva.getHabitacion(), reserva.getCheckIn(),
+                datos.getCheckOut(), id)) {
+            long noches = ChronoUnit.DAYS.between(reserva.getCheckIn(), datos.getCheckOut());
+            reserva.setCheckOut(datos.getCheckOut());
+            reserva.setMonto(categoria.getPrecio() * noches);
+            if (reservaService.contarPorCliente(reserva.getCliente()) >= 5) {
+                reserva.setMonto(reserva.getMonto() * 0.85);
+            }
             reservaService.guardarReserva(reserva);
         }
         return "redirect:/reservas";

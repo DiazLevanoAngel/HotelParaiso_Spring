@@ -39,6 +39,7 @@
                             <th>Documento</th>
                             <th>Teléfono</th>
                             <th>Correo</th>
+                            <th>Reservas acumuladas</th>
                             <th>Acciones</th>
                         </tr>
                         </thead>
@@ -48,19 +49,19 @@
                             <td th:text="${c.documento}"></td>
                             <td th:text="${c.telefono}"></td>
                             <td th:text="${c.correo}"></td>
+                            <td th:text="${@reservaService.contarPorCliente(c.nombre)}"></td>
                             <td class="text-nowrap">
                                 <button class="btn btn-warning" type="button"
                                         data-bs-toggle="modal"
                                         th:data-bs-target="'#modalEditar' + ${c.id}">Editar</button>
                                 <form th:action="@{/clientes/eliminar/{id}(id=${c.id})}" method="post"
-                                      class="d-inline"
-                                      onsubmit="return confirm('¿Eliminar este cliente?');">
+                                      class="d-inline">
                                     <button class="btn btn-danger" type="submit">Eliminar</button>
                                 </form>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(clientes)}">
-                            <td colspan="5" class="text-center text-secondary">
+                            <td colspan="6" class="text-center text-secondary">
                                 No hay clientes registrados todavía.
                             </td>
                         </tr>
