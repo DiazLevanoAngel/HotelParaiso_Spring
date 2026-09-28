@@ -24,7 +24,7 @@
 
                 <section class="d-flex gap-3 mb-4">
                     <div class="estadistica-card">
-                        <h2 class="text-primary">3</h2>
+                        <h2 class="text-primary" th:text="${habitacionesDisponibles}">0</h2>
                         <p>Habitaciones disponibles</p>
                     </div>
                     <div class="estadistica-card">
@@ -32,11 +32,11 @@
                         <p>Reservas activas</p>
                     </div>
                     <div class="estadistica-card">
-                        <h2 class="text-primary">S/. 925</h2>
+                        <h2 class="text-primary" th:text="'S/. ' + ${#numbers.formatDecimal(ingresos, 1, 2)}">S/. 0.00</h2>
                         <p>Ingresos registrados</p>
                     </div>
                     <div class="estadistica-card">
-                        <h2 class="text-primary">3</h2>
+                        <h2 class="text-primary" th:text="${totalClientes}">0</h2>
                         <p>Clientes registrados</p>
                     </div>
                 </section>
@@ -58,8 +58,9 @@
                             <td th:text="${r.habitacion}"></td>
                             <td th:text="${r.checkIn} + ' → ' + ${r.checkOut}"></td>
                             <td>
-                                <span th:class="${r.estado == 'Cancelada' ? 'text-danger' : (r.estado == 'Confirmada' ? 'text-success' : 'text-warning')}"
-                                      th:text="${r.estado}"></span>
+                                <span th:if="${r.estado == 'Cancelada'}" class="text-danger">Cancelada</span>
+                                <span th:if="${r.estado == 'Confirmada'}" class="text-success">Pagada</span>
+                                <span th:if="${r.estado == 'Pendiente'}" class="text-warning">Pendiente de pago</span>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(reservas)}">

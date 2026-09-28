@@ -1,6 +1,5 @@
 package com.hotelparaiso.sistema_hotelero.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Reserva {
@@ -10,7 +9,7 @@ public class Reserva {
     private LocalDate checkIn;
     private LocalDate checkOut;
     private int huespedes;
-    private BigDecimal monto;
+    private Double monto;
     private String estado = "Pendiente";
 
     public int getId() {
@@ -61,11 +60,11 @@ public class Reserva {
         this.huespedes = huespedes;
     }
 
-    public BigDecimal getMonto() {
+    public Double getMonto() {
         return monto;
     }
 
-    public void setMonto(BigDecimal monto) {
+    public void setMonto(Double monto) {
         this.monto = monto;
     }
 

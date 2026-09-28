@@ -11,28 +11,36 @@ public class CategoriaService {
 
     private List<Categoria> categorias = new ArrayList<>();
 
-    private int contadorId=0;
+    private int contadorId = 0;
 
-    public List<Categoria> listar(){
+    public List<Categoria> listar() {
         return categorias;
     }
 
     public Categoria buscarPorID(int id) {
-        for(Categoria categoria:categorias){
-            if (categoria.getId()==id){
+        for (Categoria categoria : categorias) {
+            if (categoria.getId() == id) {
                 return categoria;
             }
         }
-
         return null;
     }
 
-    public Categoria guardarCategoria(Categoria categoria){
-        if (categoria.getId()==0){
+    public boolean existeNombre(String nombre, int idExcluir) {
+        for (Categoria categoria : categorias) {
+            if (categoria.getId() != idExcluir && categoria.getNombre().equalsIgnoreCase(nombre)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Categoria guardarCategoria(Categoria categoria) {
+        if (categoria.getId() == 0) {
             contadorId++;
             categoria.setId(contadorId);
             categorias.add(categoria);
-        }else{
+        } else {
             for (int i = 0; i < categorias.size(); i++) {
                 if (categorias.get(i).getId() == categoria.getId()) {
                     categorias.set(i, categoria);
