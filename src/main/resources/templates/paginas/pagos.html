@@ -8,7 +8,8 @@
           rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
           crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/pagos.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
 </head>
 <body>
 <div class="d-flex vh-100">
@@ -18,7 +19,7 @@
         <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
 
         <div class="container">
-            <main>
+            <main class="p-4">
                 <h1>Pagos</h1>
                 <p class="text-secondary"
                    th:text="${#lists.size(pagos)} + ' pagos registrados'">0 pagos registrados</p>
@@ -76,7 +77,6 @@
                                         Completar pago
                                     </button>
                                 </form>
-                                <!-- Los pagos no se editan, solo se eliminan -->
                                 <form th:action="@{/pagos/eliminar/{id}(id=${p.id})}" method="post"
                                       class="d-inline">
                                     <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
@@ -92,7 +92,6 @@
                     </table>
                 </section>
 
-                <!-- Modal: Registrar pago -->
                 <div class="modal fade" id="modalPago" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">

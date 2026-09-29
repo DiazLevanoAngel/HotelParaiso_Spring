@@ -8,7 +8,8 @@
           rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
           crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/reservas.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
 </head>
 <body>
 <div class="d-flex vh-100">
@@ -18,7 +19,7 @@
         <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
 
         <div class="container">
-            <main>
+            <main class="p-4">
                 <h1>Reservas</h1>
                 <p class="text-secondary"
                    th:text="${#lists.size(reservas)} + ' reservas registradas'">0 reservas registradas</p>
@@ -59,7 +60,6 @@
                                 <span th:if="${r.estado == 'Pendiente'}" class="text-warning">Pendiente de pago</span>
                             </td>
                             <td class="text-nowrap">
-                                <!-- Solo se pueden editar las reservas que aún no se pagaron -->
                                 <button class="btn btn-warning btn-sm" type="button"
                                         th:if="${r.estado == 'Pendiente'}"
                                         data-bs-toggle="modal"
@@ -106,7 +106,6 @@
                     </div>
                 </div>
 
-                <!-- Modal: Registrar reserva -->
                 <div class="modal fade" id="modalReserva" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -154,7 +153,6 @@
                     </div>
                 </div>
 
-                <!-- Modales: Editar reserva (uno por cada reserva pendiente de pago) -->
                 <div class="modal fade" th:each="r : ${reservas}" th:if="${r.estado == 'Pendiente'}"
                      th:id="'modalEditar' + ${r.id}" tabindex="-1">
                     <div class="modal-dialog">

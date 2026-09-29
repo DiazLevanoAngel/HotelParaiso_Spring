@@ -1,7 +1,5 @@
-// controller/PaginaController.java
 package com.hotelparaiso.sistema_hotelero.controller;
 
-import com.hotelparaiso.sistema_hotelero.model.Reserva;
 import com.hotelparaiso.sistema_hotelero.service.ClienteService;
 import com.hotelparaiso.sistema_hotelero.service.HabitacionService;
 import com.hotelparaiso.sistema_hotelero.service.PagoService;
@@ -9,8 +7,6 @@ import com.hotelparaiso.sistema_hotelero.service.ReservaService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import java.util.List;
 
 @Controller
 public class PaginaController {
@@ -37,10 +33,7 @@ public class PaginaController {
 
     @GetMapping("/home")
     public String home(Model model) {
-        List<Reserva> todas = reservaService.listar();
-        List<Reserva> ultimas = todas.size() > 5 ? todas.subList(0, 5) : todas;
-
-        model.addAttribute("reservas", ultimas);
+        model.addAttribute("reservas", reservaService.listarUltimas(5));
         model.addAttribute("reservasActivas", reservaService.contarActivas());
         model.addAttribute("habitacionesDisponibles", habitacionService.listarDisponibles().size());
         model.addAttribute("ingresos", pagoService.totalIngresos());

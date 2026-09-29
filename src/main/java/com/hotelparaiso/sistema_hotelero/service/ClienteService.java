@@ -1,4 +1,3 @@
-// service/ClienteService.java
 package com.hotelparaiso.sistema_hotelero.service;
 
 import com.hotelparaiso.sistema_hotelero.model.Cliente;
@@ -12,6 +11,11 @@ public class ClienteService {
 
     private List<Cliente> clientes = new ArrayList<>();
     private int contadorId = 0;
+    private final ReservaService reservaService;
+
+    public ClienteService(ReservaService reservaService) {
+        this.reservaService = reservaService;
+    }
 
     public List<Cliente> listar() {
         return clientes;
@@ -47,5 +51,14 @@ public class ClienteService {
                 clientes.remove(i);
             }
         }
+    }
+
+    public boolean eliminarCliente(int id) {
+        Cliente cliente = buscarPorID(id);
+        if (cliente == null || reservaService.tieneReservasCliente(cliente.getNombre())) {
+            return false;
+        }
+        eliminar(id);
+        return true;
     }
 }

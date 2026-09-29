@@ -23,7 +23,6 @@ public class HabitacionService {
         return null;
     }
 
-    // idExcluir = id de la habitación que se está editando (0 si es nueva)
     public boolean existeNumero(String numero, int idExcluir) {
         for (Habitacion h : habitaciones) {
             if (h.getId() != idExcluir && h.getNumero().equalsIgnoreCase(numero)) {
@@ -75,6 +74,14 @@ public class HabitacionService {
         return habitacion;
     }
 
+    public boolean guardarHabitacionValida(Habitacion habitacion) {
+        if (habitacion.getId() == 0 && existeNumero(habitacion.getNumero())) {
+            return false;
+        }
+        guardarHabitacion(habitacion);
+        return true;
+    }
+
     public Habitacion buscarPorNumero(String numero) {
         for (Habitacion h : habitaciones) {
             if (h.getNumero().equalsIgnoreCase(numero)) {
@@ -90,5 +97,15 @@ public class HabitacionService {
                 habitaciones.remove(i);
             }
         }
+    }
+
+    public boolean eliminarHabitacion(int id, ReservaService reservaService) {
+        Habitacion habitacion = buscarPorID(id);
+        if (habitacion == null || !"Fuera de servicio".equalsIgnoreCase(habitacion.getEstado())
+                || reservaService.tieneReservasHabitacion(habitacion.getNumero())) {
+            return false;
+        }
+        eliminar(id);
+        return true;
     }
 }

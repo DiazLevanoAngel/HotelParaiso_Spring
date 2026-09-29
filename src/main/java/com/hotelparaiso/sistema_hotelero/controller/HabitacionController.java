@@ -33,25 +33,21 @@ public class HabitacionController {
 
     @PostMapping("/habitaciones/guardar")
     public String guardar(@ModelAttribute Habitacion habitacion, RedirectAttributes redirectAttributes) {
-        if (habitacion.getId() == 0 && habitacionService.existeNumero(habitacion.getNumero())) {
+        if (!habitacionService.guardarHabitacionValida(habitacion)) {
             redirectAttributes.addFlashAttribute("error", "Ya existe una habitación con ese número.");
             return "redirect:/habitaciones";
         }
-        habitacionService.guardarHabitacion(habitacion);
         redirectAttributes.addFlashAttribute("exito", "Habitación guardada correctamente.");
         return "redirect:/habitaciones";
     }
 
     @GetMapping("/habitaciones/eliminar/{id}")
     public String eliminar(@PathVariable int id, RedirectAttributes redirectAttributes) {
-        Habitacion habitacion = habitacionService.buscarPorID(id);
-        if (habitacion == null || !"Fuera de servicio".equalsIgnoreCase(habitacion.getEstado())
-                || reservaService.tieneReservasHabitacion(habitacion.getNumero())) {
+        if (!habitacionService.eliminarHabitacion(id, reservaService)) {
             redirectAttributes.addFlashAttribute("error",
                     "Solo se puede eliminar una habitación fuera de servicio y sin reservas.");
             return "redirect:/habitaciones";
         }
-        habitacionService.eliminar(id);
         redirectAttributes.addFlashAttribute("exito", "Habitación eliminada.");
         return "redirect:/habitaciones";
     }
