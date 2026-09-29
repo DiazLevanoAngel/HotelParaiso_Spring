@@ -1,0 +1,16 @@
+.sidebar-hotel {
+    background-color: #0f172a;
+    min-height: 100vh;
+    border-radius: 0 0 150px 0;
+}
+
+.nav-link {
+    color: #dfeaf7;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    background: #60a5fa;
+    color: #0f172a;
+    font-weight: 600;
+}

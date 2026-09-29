@@ -8,7 +8,8 @@
           rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
           crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/pagos.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
 </head>
 <body>
 <div class="d-flex vh-100">
@@ -18,9 +19,13 @@
         <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
 
         <div class="container">
-            <main>
+            <main class="p-4">
                 <h1>Pagos</h1>
-                <p class="text-secondary">2 pagos registrados</p>
+                <p class="text-secondary"
+                   th:text="${#lists.size(pagos)} + ' pagos registrados'">0 pagos registrados</p>
+
+                <div th:if="${mensaje}" class="alert alert-success" role="alert" th:text="${mensaje}"></div>
+                <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
 
                 <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalPago">
                     + Registrar pago
@@ -35,24 +40,53 @@
                             <th>Cliente</th>
                             <th>Habitación</th>
                             <th>Monto</th>
+                            <th>Confirmación pagada</th>
+                            <th>Restante</th>
                             <th>Método</th>
+                            <th>Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <!-- TODO: th:each="p : ${pagos}" -->
-                        <tr>
-                            <td>2026-08-28</td>
-                            <td>Bruno Benites Lizarbe</td>
-                            <td>102</td>
-                            <td>S/. 285</td>
-                            <td>Yape/Plin</td>
+                        <tr th:each="p : ${pagos}">
+                            <td th:text="${p.fecha}"></td>
+                            <td th:text="${p.cliente}"></td>
+                            <td th:text="${p.habitacion}"></td>
+                            <td th:text="'S/. ' + ${#numbers.formatDecimal(p.monto, 1, 2)}"></td>
+                            <td th:with="reserva=${@reservaService.buscarPorID(p.reservaId)}">
+                                <span th:if="${reserva != null and reserva.montoPagado >= reserva.monto * 0.5}"
+                                      class="text-success">Completado</span>
+                                <span th:unless="${reserva != null and reserva.montoPagado >= reserva.monto * 0.5}"
+                                      class="text-warning">Pendiente</span>
+                            </td>
+                            <td th:with="reserva=${@reservaService.buscarPorID(p.reservaId)}">
+                                <span th:if="${reserva != null and reserva.montoPagado >= reserva.monto}"
+                                      class="text-success">Completado</span>
+                                <span th:if="${reserva != null and reserva.montoPagado < reserva.monto}"
+                                      th:text="'S/. ' + ${#numbers.formatDecimal(reserva.monto - reserva.montoPagado, 1, 2)}"
+                                      class="text-warning"></span>
+                            </td>
+                            <td th:text="${p.metodoPago}"></td>
+                            <td class="text-nowrap">
+                                <form th:if="${@reservaService.buscarPorID(p.reservaId) != null
+                                    and @reservaService.buscarPorID(p.reservaId).montoPagado < @reservaService.buscarPorID(p.reservaId).monto}"
+                                      th:action="@{/pagos/guardar}" method="post" class="d-inline">
+                                    <input type="hidden" name="reservaId" th:value="${p.reservaId}">
+                                    <input type="hidden" name="metodoPago" value="Efectivo">
+                                    <input type="hidden" name="fecha" th:value="${pago.fecha}">
+                                    <button class="btn btn-success btn-sm" type="submit" name="tipoPago" value="completo">
+                                        Completar pago
+                                    </button>
+                                </form>
+                                <form th:action="@{/pagos/eliminar/{id}(id=${p.id})}" method="post"
+                                      class="d-inline">
+                                    <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+                                </form>
+                            </td>
                         </tr>
-                        <tr>
-                            <td>2026-08-18</td>
-                            <td>Angel Diaz Levano</td>
-                            <td>201</td>
-                            <td>S/. 640</td>
-                            <td>Tarjeta</td>
+                        <tr th:if="${#lists.isEmpty(pagos)}">
+                            <td colspan="8" class="text-center text-secondary">
+                                No hay pagos registrados todavía.
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -66,33 +100,50 @@
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <label class="text-primary">Reserva asociada</label>
-                                <select class="form-select mb-2">
-                                    <option>102 — Bruno Benites Lizarbe</option>
-                                    <option>301 — Ismael Escudero Romero</option>
-                                </select>
 
-                                <label class="text-primary">Monto (S/.)</label>
-                                <input class="form-control mb-2" type="number">
+                                <div th:if="${#lists.isEmpty(reservasPendientes)}" class="alert alert-info">
+                                    No hay reservas pendientes de pago.
+                                </div>
 
-                                <label class="text-primary">Método de pago</label>
-                                <select class="form-select mb-2">
-                                    <option>Efectivo</option>
-                                    <option>Tarjeta</option>
-                                    <option>Transferencia</option>
-                                    <option>Yape/Plin</option>
-                                </select>
+                                <form th:action="@{/pagos/guardar}" th:object="${pago}" method="post" id="formPago">
 
-                                <label class="text-primary">Fecha</label>
-                                <input class="form-control mb-2" type="date">
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-primary">Guardar</button>
+                                    <label class="text-primary">Cliente</label>
+                                    <select class="form-select mb-2" th:field="*{reservaId}" id="selReserva">
+                                        <option value="0">— Selecciona un cliente —</option>
+                                        <option th:each="r : ${reservasPendientes}"
+                                                th:value="${r.id}"
+                                                th:text="${r.cliente} + ' — Hab. ' + ${r.habitacion} + ' — S/. ' + ${#numbers.formatDecimal(r.monto, 1, 2)}">
+                                        </option>
+                                    </select>
+
+                                    <label class="text-primary">Método de pago</label>
+                                    <select class="form-select mb-2" th:field="*{metodoPago}">
+                                        <option value="Efectivo">Efectivo</option>
+                                        <option value="Tarjeta">Tarjeta</option>
+                                        <option value="Transferencia">Transferencia</option>
+                                        <option value="Yape/Plin">Yape/Plin</option>
+                                    </select>
+
+                                    <label class="text-primary">Fecha</label>
+                                    <input class="form-control mb-3" type="date" name="fecha"
+                                           th:value="${pago.fecha}" required>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" name="tipoPago" value="adelanto" class="btn btn-warning">
+                                            Confirmación de pago (50%)
+                                        </button>
+                                        <button type="submit" name="tipoPago" value="completo" class="btn btn-primary">
+                                            Pago completo
+                                        </button>
+                                    </div>
+                                </form>
+
                             </div>
                         </div>
                     </div>
                 </div>
+
             </main>
         </div>
     </div>

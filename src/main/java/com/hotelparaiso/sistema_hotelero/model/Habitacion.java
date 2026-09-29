@@ -1,54 +1,51 @@
 package com.hotelparaiso.sistema_hotelero.model;
 
-public class Categoria {
+public class Habitacion {
     private int id;
-
-    private String nombre;
+    private String numero;
     private String descripcion;
-    private int capacidad;
-    private double precio;
+    private int categoriaId;
     private String estado;
 
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNumero() {
+        return numero;
     }
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+
+    public void setNumero(String numero) {
+        this.numero = numero;
+
     }
 
     public String getDescripcion() {
         return descripcion;
     }
+
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
 
-    public int getCapacidad() {
-        return capacidad;
-    }
-    public void setCapacidad(int capacidad) {
-        this.capacidad = capacidad;
+    public int getCategoriaId() {
+        return categoriaId;
     }
 
-    public double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(double precio) {
-        this.precio = precio;
+    public void setCategoriaId(int categoriaId) {
+        this.categoriaId = categoriaId;
     }
 
     public String getEstado() {
         return estado;
     }
+
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
 }

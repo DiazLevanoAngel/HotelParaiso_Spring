@@ -9,6 +9,8 @@
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
           crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/metricas.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
 </head>
 <body>
 <div class="d-flex vh-100">
@@ -24,7 +26,6 @@
                     <p class="text-secondary mb-0">Evolución mensual de los principales indicadores.</p>
                 </div>
 
-                <!-- TODO: estos SVG son estáticos; luego se pueden generar con th:attr="points=..." a partir de un MetricaService -->
                 <div class="row g-4">
                     <div class="col-12 col-lg-6">
                         <article class="card metric-card h-100">

@@ -1,39 +1,44 @@
 package com.hotelparaiso.sistema_hotelero.controller;
 
+import com.hotelparaiso.sistema_hotelero.service.ClienteService;
+import com.hotelparaiso.sistema_hotelero.service.HabitacionService;
+import com.hotelparaiso.sistema_hotelero.service.PagoService;
+import com.hotelparaiso.sistema_hotelero.service.ReservaService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class PaginaController {
 
+    private ReservaService reservaService;
+    private HabitacionService habitacionService;
+    private ClienteService clienteService;
+    private PagoService pagoService;
+
+    public PaginaController(ReservaService reservaService,
+                            HabitacionService habitacionService,
+                            ClienteService clienteService,
+                            PagoService pagoService) {
+        this.reservaService = reservaService;
+        this.habitacionService = habitacionService;
+        this.clienteService = clienteService;
+        this.pagoService = pagoService;
+    }
+
     @GetMapping("/")
     public String login() {
-        return "login";
+        return "paginas/login";
     }
 
     @GetMapping("/home")
-    public String home() {
+    public String home(Model model) {
+        model.addAttribute("reservas", reservaService.listarUltimas(5));
+        model.addAttribute("reservasActivas", reservaService.contarActivas());
+        model.addAttribute("habitacionesDisponibles", habitacionService.listarDisponibles().size());
+        model.addAttribute("ingresos", pagoService.totalIngresos());
+        model.addAttribute("totalClientes", clienteService.listar().size());
         return "paginas/home";
-    }
-
-    @GetMapping("/habitaciones")
-    public String habitaciones() {
-        return "paginas/habitaciones";
-    }
-
-    @GetMapping("/clientes")
-    public String clientes() {
-        return "paginas/clientes";
-    }
-
-    @GetMapping("/reservas")
-    public String reservas() {
-        return "paginas/reservas";
-    }
-
-    @GetMapping("/pagos")
-    public String pagos() {
-        return "paginas/pagos";
     }
 
     @GetMapping("/metricas")

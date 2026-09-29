@@ -8,7 +8,8 @@
           rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
           crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/clientes.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
 </head>
 <body>
 <div class="d-flex vh-100">
@@ -18,9 +19,13 @@
         <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
 
         <div class="container">
-            <main>
+            <main class="p-4">
                 <h1>Clientes</h1>
-                <p class="text-secondary">3 clientes registrados</p>
+                <p class="text-secondary"
+                   th:text="${#lists.size(clientes)} + ' clientes registrados'">0 clientes registrados</p>
+
+                <div th:if="${mensaje}" class="alert alert-success" role="alert" th:text="${mensaje}"></div>
+                <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
 
                 <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalCliente">
                     + Registrar cliente
@@ -35,39 +40,30 @@
                             <th>Documento</th>
                             <th>Teléfono</th>
                             <th>Correo</th>
+                            <th>Reservas acumuladas</th>
                             <th>Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <!-- TODO: th:each="c : ${clientes}" -->
-                        <tr>
-                            <td>Bruno Benites Lizarbe</td>
-                            <td>DNI 74112233</td>
-                            <td>987 654 321</td>
-                            <td>bruno.b@mail.com</td>
-                            <td>
-                                <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#modalCliente">Editar</button>
-                                <button class="btn btn-danger" type="button">Eliminar</button>
+                        <tr th:each="c : ${clientes}">
+                            <td th:text="${c.nombre}"></td>
+                            <td th:text="${c.documento}"></td>
+                            <td th:text="${c.telefono}"></td>
+                            <td th:text="${c.correo}"></td>
+                            <td th:text="${@reservaService.contarPorCliente(c.nombre)}"></td>
+                            <td class="text-nowrap">
+                                <button class="btn btn-warning" type="button"
+                                        data-bs-toggle="modal"
+                                        th:data-bs-target="'#modalEditar' + ${c.id}">Editar</button>
+                                <form th:action="@{/clientes/eliminar/{id}(id=${c.id})}" method="post"
+                                      class="d-inline">
+                                    <button class="btn btn-danger" type="submit">Eliminar</button>
+                                </form>
                             </td>
                         </tr>
-                        <tr>
-                            <td>Ismael Escudero Romero</td>
-                            <td>DNI 71223344</td>
-                            <td>956 112 233</td>
-                            <td>ismael.e@mail.com</td>
-                            <td>
-                                <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#modalCliente">Editar</button>
-                                <button class="btn btn-danger" type="button">Eliminar</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Angel Diaz Levano</td>
-                            <td>DNI 73344556</td>
-                            <td>944 556 677</td>
-                            <td>angel.d@mail.com</td>
-                            <td>
-                                <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#modalCliente">Editar</button>
-                                <button class="btn btn-danger" type="button">Eliminar</button>
+                        <tr th:if="${#lists.isEmpty(clientes)}">
+                            <td colspan="6" class="text-center text-secondary">
+                                No hay clientes registrados todavía.
                             </td>
                         </tr>
                         </tbody>
@@ -76,31 +72,72 @@
 
                 <div class="modal fade" id="modalCliente" tabindex="-1">
                     <div class="modal-dialog">
-                        <div class="modal-content">
+                        <form th:action="@{/clientes/guardar}" th:object="${cliente}" method="post" class="modal-content">
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title">Registrar cliente</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <label class="text-primary">Nombre completo</label>
-                                <input class="form-control mb-2" type="text">
+                                <input type="hidden" th:field="*{id}">
 
-                                <label class="text-primary">Documento (DNI/CE)</label>
-                                <input class="form-control mb-2" type="text">
+                                <label class="text-primary" for="nombre">Nombre completo</label>
+                                <input class="form-control mb-2" id="nombre" type="text"
+                                       th:field="*{nombre}" required>
 
-                                <label class="text-primary">Teléfono</label>
-                                <input class="form-control mb-2" type="text">
+                                <label class="text-primary" for="documento">Documento (DNI/CE)</label>
+                                <input class="form-control mb-2" id="documento" type="text"
+                                       th:field="*{documento}" required>
 
-                                <label class="text-primary">Correo</label>
-                                <input class="form-control mb-2" type="email">
+                                <label class="text-primary" for="telefono">Teléfono</label>
+                                <input class="form-control mb-2" id="telefono" type="text"
+                                       th:field="*{telefono}">
+
+                                <label class="text-primary" for="correo">Correo</label>
+                                <input class="form-control mb-2" id="correo" type="email"
+                                       th:field="*{correo}">
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-primary">Guardar</button>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
+
+                <div class="modal fade" th:each="c : ${clientes}" th:id="'modalEditar' + ${c.id}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <form th:action="@{/clientes/guardar}" method="post" class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">Editar cliente</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="id" th:value="${c.id}">
+
+                                <label class="text-primary" th:for="'nombre' + ${c.id}">Nombre completo</label>
+                                <input class="form-control mb-2" type="text"
+                                       th:id="'nombre' + ${c.id}" name="nombre" th:value="${c.nombre}" required>
+
+                                <label class="text-primary" th:for="'documento' + ${c.id}">Documento (DNI/CE)</label>
+                                <input class="form-control mb-2" type="text"
+                                       th:id="'documento' + ${c.id}" name="documento" th:value="${c.documento}" required>
+
+                                <label class="text-primary" th:for="'telefono' + ${c.id}">Teléfono</label>
+                                <input class="form-control mb-2" type="text"
+                                       th:id="'telefono' + ${c.id}" name="telefono" th:value="${c.telefono}">
+
+                                <label class="text-primary" th:for="'correo' + ${c.id}">Correo</label>
+                                <input class="form-control mb-2" type="email"
+                                       th:id="'correo' + ${c.id}" name="correo" th:value="${c.correo}">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>

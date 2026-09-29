@@ -8,7 +8,8 @@
           rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
           crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/reservas.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
 </head>
 <body>
 <div class="d-flex vh-100">
@@ -18,9 +19,13 @@
         <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
 
         <div class="container">
-            <main>
+            <main class="p-4">
                 <h1>Reservas</h1>
-                <p class="text-secondary">3 reservas registradas</p>
+                <p class="text-secondary"
+                   th:text="${#lists.size(reservas)} + ' reservas registradas'">0 reservas registradas</p>
+
+                <div th:if="${mensaje}" class="alert alert-success" role="alert" th:text="${mensaje}"></div>
+                <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
 
                 <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalReserva">
                     + Registrar reserva
@@ -35,47 +40,71 @@
                             <th>Habitación</th>
                             <th>Check-in</th>
                             <th>Check-out</th>
-                            <th>Huéspedes</th>
-                            <th>Monto</th>
+                            <th>Capacidad</th>
+                            <th>Monto total</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <!-- TODO: th:each="r : ${reservas}" -->
-                        <tr>
-                            <td>Bruno Benites Lizarbe</td>
-                            <td>102</td>
-                            <td>2026-09-02</td>
-                            <td>2026-09-05</td>
-                            <td>2</td>
-                            <td>S/. 570</td>
-                            <td><span class="text-success">Confirmada</span></td>
-                            <td><button class="btn btn-danger" type="button">Cancelar</button></td>
+                        <tr th:each="r : ${reservas}">
+                            <td th:text="${r.cliente}"></td>
+                            <td th:text="${r.habitacion}"></td>
+                            <td th:text="${r.checkIn}"></td>
+                            <td th:text="${r.checkOut}"></td>
+                            <td th:text="${r.huespedes} + ' personas'"></td>
+                            <td th:text="'S/. ' + ${#numbers.formatDecimal(r.monto, 1, 2)}"></td>
+                            <td>
+                                <span th:if="${r.estado == 'Cancelada'}" class="text-danger" th:text="${r.estado}"></span>
+                                <span th:if="${r.estado == 'Confirmada'}" class="text-success">Pagada</span>
+                                <span th:if="${r.estado == 'Pendiente'}" class="text-warning">Pendiente de pago</span>
+                            </td>
+                            <td class="text-nowrap">
+                                <button class="btn btn-warning btn-sm" type="button"
+                                        th:if="${r.estado == 'Pendiente'}"
+                                        data-bs-toggle="modal"
+                                        th:data-bs-target="'#modalEditar' + ${r.id}">Editar</button>
+                                <form th:action="@{/reservas/eliminar/{id}(id=${r.id})}" method="post"
+                                      class="d-inline">
+                                    <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+                                </form>
+                                <button class="btn btn-info btn-sm" type="button"
+                                        data-bs-toggle="modal"
+                                        th:data-bs-target="'#modalAmpliar' + ${r.id}">
+                                    Ampliar estadía
+                                </button>
+                            </td>
                         </tr>
-                        <tr>
-                            <td>Ismael Escudero Romero</td>
-                            <td>301</td>
-                            <td>2026-09-04</td>
-                            <td>2026-09-07</td>
-                            <td>4</td>
-                            <td>S/. 840</td>
-                            <td><span class="text-warning">Pendiente</span></td>
-                            <td><button class="btn btn-danger" type="button">Cancelar</button></td>
-                        </tr>
-                        <tr>
-                            <td>Angel Diaz Levano</td>
-                            <td>201</td>
-                            <td>2026-08-20</td>
-                            <td>2026-08-22</td>
-                            <td>2</td>
-                            <td>S/. 640</td>
-                            <td><span class="text-danger">Cancelada</span></td>
-                            <td>—</td>
+                        <tr th:if="${#lists.isEmpty(reservas)}">
+                            <td colspan="8" class="text-center text-secondary">
+                                No hay reservas registradas todavía.
+                            </td>
                         </tr>
                         </tbody>
                     </table>
                 </section>
+
+                <div class="modal fade" th:each="r : ${reservas}" th:id="'modalAmpliar' + ${r.id}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <form th:action="@{/reservas/ampliar/{id}(id=${r.id})}" method="post" class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title">Ampliar estadía</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Salida actual: <strong th:text="${r.checkOut}"></strong></p>
+                                <label class="text-primary">Nueva fecha de salida</label>
+                                <input class="form-control" type="date" name="checkOut"
+                                       th:value="${r.checkOut}" required>
+                                <small class="text-secondary">La habitación debe estar libre en las nuevas fechas.</small>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-info">Guardar ampliación</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <div class="modal fade" id="modalReserva" tabindex="-1">
                     <div class="modal-dialog">
@@ -85,36 +114,92 @@
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <label class="text-primary">Cliente</label>
-                                <select class="form-select mb-2">
-                                    <option>Bruno Benites Lizarbe</option>
-                                    <option>Ismael Escudero Romero</option>
-                                    <option>Angel Diaz Levano</option>
-                                </select>
+                                <form th:action="@{/reservas/guardar}" th:object="${reserva}" method="post"
+                                      class="form-reserva">
+                                    <input type="hidden" th:field="*{id}">
 
-                                <label class="text-primary">Habitación</label>
-                                <select class="form-select mb-2">
-                                    <option>101 — Individual</option>
-                                    <option>201 — Suite Ejecutiva</option>
-                                    <option>202 — Doble Superior</option>
-                                </select>
+                                    <label class="text-primary">Cliente</label>
+                                    <select class="form-select mb-2" th:field="*{cliente}" required>
+                                        <option value="">— Selecciona un cliente —</option>
+                                        <option th:each="c : ${clientes}"
+                                                th:value="${c.nombre}"
+                                                th:text="${c.nombre}">
+                                        </option>
+                                    </select>
 
-                                <label class="text-primary">Check-in</label>
-                                <input class="form-control mb-2" type="date">
+                                    <label class="text-primary">Habitación</label>
+                                    <select class="form-select mb-2 sel-habitacion" th:field="*{habitacion}" required>
+                                        <option value="">— Selecciona una habitación —</option>
+                                        <option th:each="h : ${habitaciones}"
+                                                th:if="${h.estado == 'Disponible'}"
+                                                th:value="${h.numero}"
+                                                th:text="'Hab. ' + ${h.numero} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.nombre} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.capacidad} + ' personas'">
+                                        </option>
+                                    </select>
 
-                                <label class="text-primary">Check-out</label>
-                                <input class="form-control mb-2" type="date">
+                                    <label class="text-primary">Check-in</label>
+                                    <input class="form-control mb-2 fecha-entrada" type="date" th:field="*{checkIn}" required>
 
-                                <label class="text-primary">Huéspedes</label>
-                                <input class="form-control mb-2" type="number" min="1">
+                                    <label class="text-primary">Check-out</label>
+                                    <input class="form-control mb-2 fecha-salida" type="date" th:field="*{checkOut}" required>
 
-                                <label class="text-primary">Monto total (S/.)</label>
-                                <input class="form-control mb-2" type="number">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Guardar</button>
+                                    </div>
+                                </form>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-primary">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" th:each="r : ${reservas}" th:if="${r.estado == 'Pendiente'}"
+                     th:id="'modalEditar' + ${r.id}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning">
+                                <h5 class="modal-title">Editar reserva</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
+                            <form th:action="@{/reservas/guardar}" method="post" class="form-reserva">
+                                <div class="modal-body">
+                                    <input type="hidden" name="id" th:value="${r.id}">
+
+                                    <label class="text-primary">Cliente</label>
+                                    <select class="form-select mb-2" name="cliente" required>
+                                        <option value="">— Selecciona un cliente —</option>
+                                        <option th:each="c : ${clientes}"
+                                                th:value="${c.nombre}"
+                                                th:text="${c.nombre}"
+                                                th:selected="${c.nombre == r.cliente}">
+                                        </option>
+                                    </select>
+
+                                    <label class="text-primary">Habitación</label>
+                                    <select class="form-select mb-2 sel-habitacion" name="habitacion" required>
+                                        <option value="">— Selecciona una habitación —</option>
+                                        <option th:each="h : ${habitaciones}"
+                                                th:if="${h.estado == 'Disponible' or h.numero == r.habitacion}"
+                                                th:value="${h.numero}"
+                                                th:selected="${h.numero == r.habitacion}"
+                                                th:text="'Hab. ' + ${h.numero} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.nombre} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.capacidad} + ' personas'">
+                                        </option>
+                                    </select>
+
+                                    <label class="text-primary">Check-in</label>
+                                    <input class="form-control mb-2 fecha-entrada" type="date" name="checkIn"
+                                           th:value="${r.checkIn}" required>
+
+                                    <label class="text-primary">Check-out</label>
+                                    <input class="form-control mb-2 fecha-salida" type="date" name="checkOut"
+                                           th:value="${r.checkOut}" required>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
