@@ -1,22 +1,42 @@
 package com.hotelparaiso.sistema_hotelero.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+@Entity
+@Table(name = "reserva")
 public class Reserva {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String cliente;
     private String habitacion;
+
+    @Column(name = "check_in")
     private LocalDate checkIn;
+
+    @Column(name = "check_out")
     private LocalDate checkOut;
+
     private int huespedes;
     private Double monto;
+
+    @Column(name = "monto_pagado")
     private Double montoPagado = 0.0;
+
     private String estado = "Pendiente";
+
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.REMOVE)
+
+    private List<Pago> pagos = new ArrayList<>();
 
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -24,7 +44,6 @@ public class Reserva {
     public String getCliente() {
         return cliente;
     }
-
     public void setCliente(String cliente) {
         this.cliente = cliente;
     }
@@ -32,7 +51,6 @@ public class Reserva {
     public String getHabitacion() {
         return habitacion;
     }
-
     public void setHabitacion(String habitacion) {
         this.habitacion = habitacion;
     }
@@ -40,7 +58,6 @@ public class Reserva {
     public LocalDate getCheckIn() {
         return checkIn;
     }
-
     public void setCheckIn(LocalDate checkIn) {
         this.checkIn = checkIn;
     }
@@ -48,7 +65,6 @@ public class Reserva {
     public LocalDate getCheckOut() {
         return checkOut;
     }
-
     public void setCheckOut(LocalDate checkOut) {
         this.checkOut = checkOut;
     }
@@ -56,7 +72,6 @@ public class Reserva {
     public int getHuespedes() {
         return huespedes;
     }
-
     public void setHuespedes(int huespedes) {
         this.huespedes = huespedes;
     }
@@ -64,7 +79,6 @@ public class Reserva {
     public Double getMonto() {
         return monto;
     }
-
     public void setMonto(Double monto) {
         this.monto = monto;
     }
@@ -72,7 +86,6 @@ public class Reserva {
     public Double getMontoPagado() {
         return montoPagado;
     }
-
     public void setMontoPagado(Double montoPagado) {
         this.montoPagado = montoPagado;
     }
@@ -80,8 +93,10 @@ public class Reserva {
     public String getEstado() {
         return estado;
     }
-
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
+    public List<Pago> getPagos() { return pagos; }
+    public void setPagos(List<Pago> pagos) { this.pagos = pagos; }
 }

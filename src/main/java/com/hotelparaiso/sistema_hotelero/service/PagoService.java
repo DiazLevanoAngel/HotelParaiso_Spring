@@ -2,7 +2,9 @@ package com.hotelparaiso.sistema_hotelero.service;
 
 import com.hotelparaiso.sistema_hotelero.model.Pago;
 import com.hotelparaiso.sistema_hotelero.model.Reserva;
+import com.hotelparaiso.sistema_hotelero.repository.PagoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,20 +12,16 @@ import java.util.List;
 @Service
 public class PagoService {
 
-    private List<Pago> pagos = new ArrayList<>();
-    private int contadorId = 0;
+    private final PagoRepository pagoRepository;
     private final ReservaService reservaService;
 
-    public PagoService(ReservaService reservaService) {
+    public PagoService(PagoRepository pagoRepository, ReservaService reservaService) {
+        this.pagoRepository = pagoRepository;
         this.reservaService = reservaService;
     }
 
     public List<Pago> listar() {
-        List<Pago> resultado = new ArrayList<>();
-        for (int i = pagos.size() - 1; i >= 0; i--) {
-            resultado.add(pagos.get(i));
-        }
-        return resultado;
+        return pagoRepository.findAllByOrderByIdDesc();
     }
 
     public List<Reserva> listarReservasPendientes() {
@@ -36,6 +34,7 @@ public class PagoService {
         return pendientes;
     }
 
+    @Transactional
     public boolean registrarPago(Pago pago, String tipoPago) {
         Reserva reserva = reservaService.buscarPorID(pago.getReservaId());
         if (reserva == null || reserva.getMontoPagado() >= reserva.getMonto()) {
@@ -49,87 +48,47 @@ public class PagoService {
             return false;
         }
 
-        Pago pagoRegistrado = buscarPorReserva(reserva.getId());
-        if (pagoRegistrado == null) {
-            pago.setId(0);
-            pago.setCliente(reserva.getCliente());
-            pago.setHabitacion(reserva.getHabitacion());
-            guardarPago(pago);
-        } else {
-            pagoRegistrado.setMonto(pagoRegistrado.getMonto() + pago.getMonto());
-            pagoRegistrado.setMetodoPago(pago.getMetodoPago());
-            pagoRegistrado.setFecha(pago.getFecha());
-            guardarPago(pagoRegistrado);
-        }
+        pago.setId(0);
+        pago.setReserva(reserva);
+        pago.setCliente(reserva.getCliente());
+        pago.setHabitacion(reserva.getHabitacion());
+        pagoRepository.save(pago);
 
-        reserva.setMontoPagado(reserva.getMontoPagado() + pago.getMonto());
-        if (reserva.getMontoPagado() >= reserva.getMonto() * 0.50) {
-            reserva.setEstado("Confirmada");
-        }
+        reservaService.actualizarEstadoPorPagos(reserva);
         return true;
     }
 
+    @Transactional
     public boolean eliminarPago(int id) {
         Pago pago = buscarPorID(id);
         if (pago == null) {
             return false;
         }
-        Reserva reserva = reservaService.buscarPorID(pago.getReservaId());
+        Reserva reserva = pago.getReserva();
+        pagoRepository.delete(pago);
         if (reserva != null) {
-            reserva.setMontoPagado(Math.max(0, reserva.getMontoPagado() - pago.getMonto()));
-            reserva.setEstado(reserva.getMontoPagado() >= reserva.getMonto() * 0.50
-                    ? "Confirmada" : "Pendiente");
+            reservaService.actualizarEstadoPorPagos(reserva);
         }
-        eliminar(id);
         return true;
     }
 
     public Pago buscarPorID(int id) {
-        for (Pago pago : pagos) {
-            if (pago.getId() == id) {
-                return pago;
-            }
-        }
-        return null;
-    }
-
-    public Pago buscarPorReserva(int reservaId) {
-        for (Pago pago : pagos) {
-            if (pago.getReservaId() == reservaId) {
-                return pago;
-            }
-        }
-        return null;
+        return pagoRepository.findById(id).orElse(null);
     }
 
     public double totalIngresos() {
         double total = 0;
-        for (Pago pago : pagos) {
+        for (Pago pago : pagoRepository.findAll()) {
             total += pago.getMonto();
         }
         return total;
     }
 
     public Pago guardarPago(Pago pago) {
-        if (pago.getId() == 0) {
-            contadorId++;
-            pago.setId(contadorId);
-            pagos.add(pago);
-        } else {
-            for (int i = 0; i < pagos.size(); i++) {
-                if (pagos.get(i).getId() == pago.getId()) {
-                    pagos.set(i, pago);
-                }
-            }
-        }
-        return pago;
+        return pagoRepository.save(pago);
     }
 
     public void eliminar(int id) {
-        for (int i = pagos.size() - 1; i >= 0; i--) {
-            if (pagos.get(i).getId() == id) {
-                pagos.remove(i);
-            }
-        }
+        pagoRepository.deleteById(id);
     }
 }

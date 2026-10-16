@@ -1,33 +1,35 @@
 package com.hotelparaiso.sistema_hotelero.service;
 
-import com.hotelparaiso.sistema_hotelero.model.Reserva;
 import com.hotelparaiso.sistema_hotelero.model.Habitacion;
+import com.hotelparaiso.sistema_hotelero.model.Pago;
+import com.hotelparaiso.sistema_hotelero.model.Reserva;
+import com.hotelparaiso.sistema_hotelero.repository.PagoRepository;
+import com.hotelparaiso.sistema_hotelero.repository.ReservaRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class ReservaService {
 
-    private List<Reserva> reservas = new ArrayList<>();
-    private int contadorId = 0;
+    private final ReservaRepository reservaRepository;
+    private final PagoRepository pagoRepository;
     private final HabitacionService habitacionService;
     private final CategoriaService categoriaService;
 
-    public ReservaService(HabitacionService habitacionService, CategoriaService categoriaService) {
+    public ReservaService(ReservaRepository reservaRepository, PagoRepository pagoRepository,
+                          HabitacionService habitacionService, CategoriaService categoriaService) {
+        this.reservaRepository = reservaRepository;
+        this.pagoRepository = pagoRepository;
         this.habitacionService = habitacionService;
         this.categoriaService = categoriaService;
     }
 
+
     public List<Reserva> listar() {
-        List<Reserva> resultado = new ArrayList<>();
-        for (int i = reservas.size() - 1; i >= 0; i--) {
-            resultado.add(reservas.get(i));
-        }
-        return resultado;
+        return reservaRepository.findAllByOrderByIdDesc();
     }
 
     public List<Reserva> listarUltimas(int cantidad) {
@@ -36,17 +38,12 @@ public class ReservaService {
     }
 
     public Reserva buscarPorID(int id) {
-        for (Reserva reserva : reservas) {
-            if (reserva.getId() == id) {
-                return reserva;
-            }
-        }
-        return null;
+        return reservaRepository.findById(id).orElse(null);
     }
 
     public int contarActivas() {
         int total = 0;
-        for (Reserva reserva : reservas) {
+        for (Reserva reserva : reservaRepository.findAll()) {
             if (!"Cancelada".equals(reserva.getEstado())) {
                 total++;
             }
@@ -55,37 +52,25 @@ public class ReservaService {
     }
 
     public int contarPorCliente(String cliente) {
-        int total = 0;
-        for (Reserva reserva : reservas) {
-            if (cliente.equalsIgnoreCase(reserva.getCliente())) {
-                total++;
-            }
-        }
-        return total;
+        return (int) reservaRepository.countByClienteIgnoreCase(cliente);
     }
 
     public boolean tieneReservasCliente(String cliente) {
-        return contarPorCliente(cliente) > 0;
+        return reservaRepository.existsByClienteIgnoreCase(cliente);
     }
 
     public boolean tieneReservasHabitacion(String habitacion) {
-        for (Reserva reserva : reservas) {
-            if (habitacion.equalsIgnoreCase(reserva.getHabitacion())) {
-                return true;
-            }
-        }
-        return false;
+        return reservaRepository.existsByHabitacionIgnoreCase(habitacion);
     }
 
     public boolean habitacionDisponible(String habitacion, LocalDate entrada,
                                         LocalDate salida, int idExcluir) {
-        for (Reserva reserva : reservas) {
-            boolean mismaHabitacion = habitacion.equalsIgnoreCase(reserva.getHabitacion());
+        for (Reserva reserva : reservaRepository.findByHabitacionIgnoreCase(habitacion)) {
             boolean activa = !"Cancelada".equals(reserva.getEstado());
             boolean seCruzan = entrada.isBefore(reserva.getCheckOut())
                     && salida.isAfter(reserva.getCheckIn());
 
-            if (reserva.getId() != idExcluir && mismaHabitacion && activa && seCruzan) {
+            if (reserva.getId() != idExcluir && activa && seCruzan) {
                 return false;
             }
         }
@@ -111,7 +96,24 @@ public class ReservaService {
         if (contarPorCliente(reserva.getCliente()) >= 4) {
             reserva.setMonto(reserva.getMonto() * 0.85);
         }
+
+        // Si es una edición, se cargan los datos reales para no perder lo pagado
+        if (reserva.getId() != 0) {
+            Reserva existente = buscarPorID(reserva.getId());
+            if (existente == null) {
+                return false;
+            }
+            existente.setCliente(reserva.getCliente());
+            existente.setHabitacion(reserva.getHabitacion());
+            existente.setCheckIn(reserva.getCheckIn());
+            existente.setCheckOut(reserva.getCheckOut());
+            existente.setHuespedes(reserva.getHuespedes());
+            existente.setMonto(reserva.getMonto());
+            reserva = existente;
+        }
+
         guardarReserva(reserva);
+        actualizarEstadoPorPagos(reserva);
         return true;
     }
 
@@ -133,7 +135,9 @@ public class ReservaService {
         if (contarPorCliente(reserva.getCliente()) >= 5) {
             reserva.setMonto(reserva.getMonto() * 0.85);
         }
+
         guardarReserva(reserva);
+        actualizarEstadoPorPagos(reserva);
         return true;
     }
 
@@ -142,27 +146,28 @@ public class ReservaService {
                 || !reserva.getCheckOut().isAfter(reserva.getCheckIn())) {
             throw new IllegalArgumentException("La salida debe ser posterior a la fecha de entrada.");
         }
-        if (reserva.getId() == 0) {
-            contadorId++;
-            reserva.setId(contadorId);
-            reservas.add(reserva);
-        } else {
-            for (int i = 0; i < reservas.size(); i++) {
-                if (reservas.get(i).getId() == reserva.getId()) {
-                    reservas.set(i, reserva);
-                }
-            }
-        }
-        return reserva;
+        return reservaRepository.save(reserva);
     }
 
     public boolean eliminar(int id) {
-        for (int i = reservas.size() - 1; i >= 0; i--) {
-            if (reservas.get(i).getId() == id) {
-                reservas.remove(i);
-                return true;
-            }
+        if (!reservaRepository.existsById(id)) {
+            return false;
         }
-        return false;
+        reservaRepository.deleteById(id);
+        return true;
+    }
+
+    public void actualizarEstadoPorPagos(Reserva reserva) {
+        double totalPagado = 0;
+        for (Pago pago : pagoRepository.findByReserva_Id(reserva.getId())) {
+            totalPagado += pago.getMonto();
+        }
+        reserva.setMontoPagado(totalPagado);
+
+        if (!"Cancelada".equals(reserva.getEstado())) {
+            boolean alcanzaAdelanto = totalPagado + 0.001 >= reserva.getMonto() * 0.50;
+            reserva.setEstado(alcanzaAdelanto ? "Confirmada" : "Pendiente");
+        }
+        reservaRepository.save(reserva);
     }
 }
