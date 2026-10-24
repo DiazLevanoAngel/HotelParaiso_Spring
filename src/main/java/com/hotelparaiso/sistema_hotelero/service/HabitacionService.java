@@ -1,35 +1,44 @@
 package com.hotelparaiso.sistema_hotelero.service;
 
+import com.hotelparaiso.sistema_hotelero.adapter.HabitacionAdapter;
+import com.hotelparaiso.sistema_hotelero.entity.CategoriaEntity;
 import com.hotelparaiso.sistema_hotelero.model.Habitacion;
+import com.hotelparaiso.sistema_hotelero.repository.CategoriaRepository;
+import com.hotelparaiso.sistema_hotelero.repository.HabitacionRepository;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class HabitacionService {
 
-    private List<Habitacion> habitaciones = new ArrayList<>();
-    private int contadorId = 0;
+    private final HabitacionRepository habitacionRepository;
+    private final CategoriaRepository categoriaRepository;
+    private final HabitacionAdapter habitacionAdapter;
+
+    public HabitacionService(HabitacionRepository habitacionRepository,
+                             CategoriaRepository categoriaRepository,
+                             HabitacionAdapter habitacionAdapter) {
+        this.habitacionRepository = habitacionRepository;
+        this.categoriaRepository = categoriaRepository;
+        this.habitacionAdapter = habitacionAdapter;
+    }
 
     public List<Habitacion> listar() {
-        return habitaciones;
+        return habitacionRepository.findAll().stream()
+                .map(habitacionAdapter::toModel)
+                .collect(Collectors.toList());
     }
 
     public Habitacion buscarPorID(int id) {
-        for (Habitacion h : habitaciones) {
-            if (h.getId() == id)
-                return h;
-        }
-        return null;
+        return habitacionRepository.findById(id)
+                .map(habitacionAdapter::toModel)
+                .orElse(null);
     }
 
     public boolean existeNumero(String numero, int idExcluir) {
-        for (Habitacion h : habitaciones) {
-            if (h.getId() != idExcluir && h.getNumero().equalsIgnoreCase(numero)) {
-                return true;
-            }
-        }
-        return false;
+        return habitacionRepository.existsByNumeroIgnoreCaseAndIdNot(numero, idExcluir);
     }
 
     public boolean existeNumero(String numero) {
@@ -37,12 +46,7 @@ public class HabitacionService {
     }
 
     public boolean hayHabitacionesEnCategoria(int categoriaId) {
-        for (Habitacion h : habitaciones) {
-            if (h.getCategoriaId() == categoriaId) {
-                return true;
-            }
-        }
-        return false;
+        return habitacionRepository.existsByCategoria_Id(categoriaId);
     }
 
     public int contarDisponibles() {
@@ -50,32 +54,23 @@ public class HabitacionService {
     }
 
     public List<Habitacion> listarDisponibles() {
-        List<Habitacion> disponibles = new ArrayList<>();
-        for (Habitacion h : habitaciones) {
-            if ("Disponible".equalsIgnoreCase(h.getEstado())) {
-                disponibles.add(h);
-            }
-        }
-        return disponibles;
+        return habitacionRepository.findByEstadoIgnoreCase("Disponible").stream()
+                .map(habitacionAdapter::toModel)
+                .collect(Collectors.toList());
     }
 
     public Habitacion guardarHabitacion(Habitacion habitacion) {
-        if (habitacion.getId() == 0) {
-            contadorId++;
-            habitacion.setId(contadorId);
-            habitaciones.add(habitacion);
-        } else {
-            for (int i = 0; i < habitaciones.size(); i++) {
-                if (habitaciones.get(i).getId() == habitacion.getId()) {
-                    habitaciones.set(i, habitacion);
-                }
-            }
-        }
-        return habitacion;
+        // 1) buscar la CategoriaEntity (igual que TaskService del profesor)
+        CategoriaEntity categoria = categoriaRepository.findById(habitacion.getCategoriaId())
+                .orElseThrow(() -> new RuntimeException(
+                        "Categoría no encontrada con ID: " + habitacion.getCategoriaId()));
+        // 2) adapter -> repository -> adapter
+        var guardada = habitacionRepository.save(habitacionAdapter.toEntity(habitacion, categoria));
+        return habitacionAdapter.toModel(guardada);
     }
 
     public boolean guardarHabitacionValida(Habitacion habitacion) {
-        if (habitacion.getId() == 0 && existeNumero(habitacion.getNumero())) {
+        if (existeNumero(habitacion.getNumero(), habitacion.getId())) {
             return false;
         }
         guardarHabitacion(habitacion);
@@ -83,20 +78,13 @@ public class HabitacionService {
     }
 
     public Habitacion buscarPorNumero(String numero) {
-        for (Habitacion h : habitaciones) {
-            if (h.getNumero().equalsIgnoreCase(numero)) {
-                return h;
-            }
-        }
-        return null;
+        return habitacionRepository.findByNumeroIgnoreCase(numero)
+                .map(habitacionAdapter::toModel)
+                .orElse(null);
     }
 
     public void eliminar(int id) {
-        for (int i = habitaciones.size() - 1; i >= 0; i--) {
-            if (habitaciones.get(i).getId() == id) {
-                habitaciones.remove(i);
-            }
-        }
+        habitacionRepository.deleteById(id);
     }
 
     public boolean eliminarHabitacion(int id, ReservaService reservaService) {

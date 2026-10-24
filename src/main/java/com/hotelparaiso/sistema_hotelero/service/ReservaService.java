@@ -1,7 +1,9 @@
 package com.hotelparaiso.sistema_hotelero.service;
 
+import com.hotelparaiso.sistema_hotelero.adapter.ReservaAdapter;
+import com.hotelparaiso.sistema_hotelero.entity.PagoEntity;
+import com.hotelparaiso.sistema_hotelero.entity.ReservaEntity;
 import com.hotelparaiso.sistema_hotelero.model.Habitacion;
-import com.hotelparaiso.sistema_hotelero.model.Pago;
 import com.hotelparaiso.sistema_hotelero.model.Reserva;
 import com.hotelparaiso.sistema_hotelero.repository.PagoRepository;
 import com.hotelparaiso.sistema_hotelero.repository.ReservaRepository;
@@ -10,26 +12,31 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservaService {
 
     private final ReservaRepository reservaRepository;
     private final PagoRepository pagoRepository;
+    private final ReservaAdapter reservaAdapter;
     private final HabitacionService habitacionService;
     private final CategoriaService categoriaService;
 
     public ReservaService(ReservaRepository reservaRepository, PagoRepository pagoRepository,
-                          HabitacionService habitacionService, CategoriaService categoriaService) {
+                          ReservaAdapter reservaAdapter, HabitacionService habitacionService,
+                          CategoriaService categoriaService) {
         this.reservaRepository = reservaRepository;
         this.pagoRepository = pagoRepository;
+        this.reservaAdapter = reservaAdapter;
         this.habitacionService = habitacionService;
         this.categoriaService = categoriaService;
     }
 
-
     public List<Reserva> listar() {
-        return reservaRepository.findAllByOrderByIdDesc();
+        return reservaRepository.findAllByOrderByIdDesc().stream()
+                .map(reservaAdapter::toModel)
+                .collect(Collectors.toList());
     }
 
     public List<Reserva> listarUltimas(int cantidad) {
@@ -38,17 +45,13 @@ public class ReservaService {
     }
 
     public Reserva buscarPorID(int id) {
-        return reservaRepository.findById(id).orElse(null);
+        return reservaRepository.findById(id)
+                .map(reservaAdapter::toModel)
+                .orElse(null);
     }
 
     public int contarActivas() {
-        int total = 0;
-        for (Reserva reserva : reservaRepository.findAll()) {
-            if (!"Cancelada".equals(reserva.getEstado())) {
-                total++;
-            }
-        }
-        return total;
+        return (int) reservaRepository.countByEstadoNot("Cancelada");
     }
 
     public int contarPorCliente(String cliente) {
@@ -65,7 +68,7 @@ public class ReservaService {
 
     public boolean habitacionDisponible(String habitacion, LocalDate entrada,
                                         LocalDate salida, int idExcluir) {
-        for (Reserva reserva : reservaRepository.findByHabitacionIgnoreCase(habitacion)) {
+        for (ReservaEntity reserva : reservaRepository.findByHabitacionIgnoreCase(habitacion)) {
             boolean activa = !"Cancelada".equals(reserva.getEstado());
             boolean seCruzan = entrada.isBefore(reserva.getCheckOut())
                     && salida.isAfter(reserva.getCheckIn());
@@ -112,8 +115,10 @@ public class ReservaService {
             reserva = existente;
         }
 
-        guardarReserva(reserva);
-        actualizarEstadoPorPagos(reserva);
+        // IMPORTANTE: usar lo que DEVUELVE guardarReserva (ya trae el id generado).
+        // Si usas el 'reserva' original (id = 0) se insertaría una fila duplicada.
+        Reserva guardada = guardarReserva(reserva);
+        actualizarEstadoPorPagos(guardada);
         return true;
     }
 
@@ -136,8 +141,8 @@ public class ReservaService {
             reserva.setMonto(reserva.getMonto() * 0.85);
         }
 
-        guardarReserva(reserva);
-        actualizarEstadoPorPagos(reserva);
+        Reserva guardada = guardarReserva(reserva);
+        actualizarEstadoPorPagos(guardada);
         return true;
     }
 
@@ -146,7 +151,8 @@ public class ReservaService {
                 || !reserva.getCheckOut().isAfter(reserva.getCheckIn())) {
             throw new IllegalArgumentException("La salida debe ser posterior a la fecha de entrada.");
         }
-        return reservaRepository.save(reserva);
+        ReservaEntity guardada = reservaRepository.save(reservaAdapter.toEntity(reserva));
+        return reservaAdapter.toModel(guardada);
     }
 
     public boolean eliminar(int id) {
@@ -159,7 +165,7 @@ public class ReservaService {
 
     public void actualizarEstadoPorPagos(Reserva reserva) {
         double totalPagado = 0;
-        for (Pago pago : pagoRepository.findByReserva_Id(reserva.getId())) {
+        for (PagoEntity pago : pagoRepository.findByReserva_Id(reserva.getId())) {
             totalPagado += pago.getMonto();
         }
         reserva.setMontoPagado(totalPagado);
@@ -168,6 +174,6 @@ public class ReservaService {
             boolean alcanzaAdelanto = totalPagado + 0.001 >= reserva.getMonto() * 0.50;
             reserva.setEstado(alcanzaAdelanto ? "Confirmada" : "Pendiente");
         }
-        reservaRepository.save(reserva);
+        reservaRepository.save(reservaAdapter.toEntity(reserva));
     }
 }

@@ -1,59 +1,46 @@
 package com.hotelparaiso.sistema_hotelero.service;
 
+import com.hotelparaiso.sistema_hotelero.adapter.CategoriaAdapter;
 import com.hotelparaiso.sistema_hotelero.model.Categoria;
+import com.hotelparaiso.sistema_hotelero.repository.CategoriaRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoriaService {
 
-    private List<Categoria> categorias = new ArrayList<>();
-    private int contadorId = 0;
+    private final CategoriaRepository categoriaRepository;
+    private final CategoriaAdapter categoriaAdapter;
+
+    public CategoriaService(CategoriaRepository categoriaRepository, CategoriaAdapter categoriaAdapter) {
+        this.categoriaRepository = categoriaRepository;
+        this.categoriaAdapter = categoriaAdapter;
+    }
 
     public List<Categoria> listar() {
-        return categorias;
+        return categoriaRepository.findAll().stream()
+                .map(categoriaAdapter::toModel)
+                .collect(Collectors.toList());
     }
 
     public Categoria buscarPorID(int id) {
-        for (Categoria categoria : categorias) {
-            if (categoria.getId() == id) {
-                return categoria;
-            }
-        }
-        return null;
+        return categoriaRepository.findById(id)
+                .map(categoriaAdapter::toModel)
+                .orElse(null);
     }
 
     public boolean existeNombre(String nombre, int idExcluir) {
-        for (Categoria categoria : categorias) {
-            if (categoria.getId() != idExcluir && categoria.getNombre().equalsIgnoreCase(nombre)) {
-                return true;
-            }
-        }
-        return false;
+        return categoriaRepository.existsByNombreIgnoreCaseAndIdNot(nombre, idExcluir);
     }
 
     public Categoria guardarCategoria(Categoria categoria) {
-        if (categoria.getId() == 0) {
-            contadorId++;
-            categoria.setId(contadorId);
-            categorias.add(categoria);
-        } else {
-            for (int i = 0; i < categorias.size(); i++) {
-                if (categorias.get(i).getId() == categoria.getId()) {
-                    categorias.set(i, categoria);
-                }
-            }
-        }
-        return categoria;
+        var guardada = categoriaRepository.save(categoriaAdapter.toEntity(categoria));
+        return categoriaAdapter.toModel(guardada);
     }
 
     public void eliminar(int id) {
-        for (int i = categorias.size() - 1; i >= 0; i--) {
-            if (categorias.get(i).getId() == id) {
-                categorias.remove(i);
-            }
-        }
+        categoriaRepository.deleteById(id);
     }
 }

@@ -1,27 +1,39 @@
 package com.hotelparaiso.sistema_hotelero.service;
 
+import com.hotelparaiso.sistema_hotelero.adapter.PagoAdapter;
+import com.hotelparaiso.sistema_hotelero.entity.PagoEntity;
+import com.hotelparaiso.sistema_hotelero.entity.ReservaEntity;
 import com.hotelparaiso.sistema_hotelero.model.Pago;
 import com.hotelparaiso.sistema_hotelero.model.Reserva;
 import com.hotelparaiso.sistema_hotelero.repository.PagoRepository;
+import com.hotelparaiso.sistema_hotelero.repository.ReservaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PagoService {
 
     private final PagoRepository pagoRepository;
+    private final ReservaRepository reservaRepository;
+    private final PagoAdapter pagoAdapter;
     private final ReservaService reservaService;
 
-    public PagoService(PagoRepository pagoRepository, ReservaService reservaService) {
+    public PagoService(PagoRepository pagoRepository, ReservaRepository reservaRepository,
+                       PagoAdapter pagoAdapter, ReservaService reservaService) {
         this.pagoRepository = pagoRepository;
+        this.reservaRepository = reservaRepository;
+        this.pagoAdapter = pagoAdapter;
         this.reservaService = reservaService;
     }
 
     public List<Pago> listar() {
-        return pagoRepository.findAllByOrderByIdDesc();
+        return pagoRepository.findAllByOrderByIdDesc().stream()
+                .map(pagoAdapter::toModel)
+                .collect(Collectors.toList());
     }
 
     public List<Reserva> listarReservasPendientes() {
@@ -49,10 +61,13 @@ public class PagoService {
         }
 
         pago.setId(0);
-        pago.setReserva(reserva);
         pago.setCliente(reserva.getCliente());
         pago.setHabitacion(reserva.getHabitacion());
-        pagoRepository.save(pago);
+
+        // Se busca la ReservaEntity (igual que se busca la CategoriaEntity en Habitación)
+        ReservaEntity reservaEntity = reservaRepository.findById(reserva.getId())
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + reserva.getId()));
+        pagoRepository.save(pagoAdapter.toEntity(pago, reservaEntity));
 
         reservaService.actualizarEstadoPorPagos(reserva);
         return true;
@@ -60,12 +75,14 @@ public class PagoService {
 
     @Transactional
     public boolean eliminarPago(int id) {
-        Pago pago = buscarPorID(id);
+        PagoEntity pago = pagoRepository.findById(id).orElse(null);
         if (pago == null) {
             return false;
         }
-        Reserva reserva = pago.getReserva();
+        int reservaId = pago.getReserva() != null ? pago.getReserva().getId() : 0;
         pagoRepository.delete(pago);
+
+        Reserva reserva = reservaService.buscarPorID(reservaId);
         if (reserva != null) {
             reservaService.actualizarEstadoPorPagos(reserva);
         }
@@ -73,19 +90,17 @@ public class PagoService {
     }
 
     public Pago buscarPorID(int id) {
-        return pagoRepository.findById(id).orElse(null);
+        return pagoRepository.findById(id)
+                .map(pagoAdapter::toModel)
+                .orElse(null);
     }
 
     public double totalIngresos() {
         double total = 0;
-        for (Pago pago : pagoRepository.findAll()) {
+        for (PagoEntity pago : pagoRepository.findAll()) {
             total += pago.getMonto();
         }
         return total;
-    }
-
-    public Pago guardarPago(Pago pago) {
-        return pagoRepository.save(pago);
     }
 
     public void eliminar(int id) {

@@ -1,56 +1,46 @@
 package com.hotelparaiso.sistema_hotelero.service;
 
+import com.hotelparaiso.sistema_hotelero.adapter.ClienteAdapter;
 import com.hotelparaiso.sistema_hotelero.model.Cliente;
+import com.hotelparaiso.sistema_hotelero.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ClienteService {
 
-    private List<Cliente> clientes = new ArrayList<>();
-    private int contadorId = 0;
+    private final ClienteRepository clienteRepository;
+    private final ClienteAdapter clienteAdapter;
     private final ReservaService reservaService;
 
-    public ClienteService(ReservaService reservaService) {
+    public ClienteService(ClienteRepository clienteRepository, ClienteAdapter clienteAdapter,
+                          ReservaService reservaService) {
+        this.clienteRepository = clienteRepository;
+        this.clienteAdapter = clienteAdapter;
         this.reservaService = reservaService;
     }
 
     public List<Cliente> listar() {
-        return clientes;
+        return clienteRepository.findAll().stream()
+                .map(clienteAdapter::toModel)
+                .collect(Collectors.toList());
     }
 
     public Cliente buscarPorID(int id) {
-        for (Cliente cliente : clientes) {
-            if (cliente.getId() == id) {
-                return cliente;
-            }
-        }
-        return null;
+        return clienteRepository.findById(id)
+                .map(clienteAdapter::toModel)
+                .orElse(null);
     }
 
     public Cliente guardarCliente(Cliente cliente) {
-        if (cliente.getId() == 0) {
-            contadorId++;
-            cliente.setId(contadorId);
-            clientes.add(cliente);
-        } else {
-            for (int i = 0; i < clientes.size(); i++) {
-                if (clientes.get(i).getId() == cliente.getId()) {
-                    clientes.set(i, cliente);
-                }
-            }
-        }
-        return cliente;
+        var guardado = clienteRepository.save(clienteAdapter.toEntity(cliente));
+        return clienteAdapter.toModel(guardado);
     }
 
     public void eliminar(int id) {
-        for (int i = clientes.size() - 1; i >= 0; i--) {
-            if (clientes.get(i).getId() == id) {
-                clientes.remove(i);
-            }
-        }
+        clienteRepository.deleteById(id);
     }
 
     public boolean eliminarCliente(int id) {
