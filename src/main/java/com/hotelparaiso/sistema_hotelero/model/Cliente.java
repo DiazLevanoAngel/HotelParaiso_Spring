@@ -7,7 +7,6 @@ public class Cliente {
     private String documento;
     private String telefono;
     private String correo;
-    private String estado = "Activo";
 
     public int getId() {
         return id;
@@ -48,7 +47,4 @@ public class Cliente {
     public void setCorreo(String correo) {
         this.correo = correo;
     }
-
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
 }
