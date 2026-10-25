@@ -13,10 +13,17 @@ insert into habitacion (numero, descripcion, estado, id_categoria) values ('201'
 insert into habitacion (numero, descripcion, estado, id_categoria) values ('202', 'Segundo piso, vista a la piscina', 'Disponible', 4);
 insert into habitacion (numero, descripcion, estado, id_categoria) values ('301', 'Tercer piso, en mantenimiento', 'Fuera de servicio', 2);
 
-insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado) values ('Ana Torres', '201', '2026-10-21', '2026-10-25', 4, 1280.00, 640.00, 'Confirmada');
-insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado) values ('Carlos Ramírez', '102', '2026-11-05', '2026-11-08', 2, 600.00, 0.00, 'Pendiente');
-insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado) values ('Luis Gómez', '202', '2026-11-10', '2026-11-12', 2, 900.00, 900.00, 'Confirmada');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '201', '2026-10-21', '2026-10-25', 4, 1280.00, 640.00, 'Confirmada', 'Asistio', '2026-10-01');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Carlos Ramírez', '102', '2026-11-05', '2026-11-08', 2, 600.00, 0.00, 'Pendiente', 'Reservada', '2026-10-05');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Luis Gómez', '202', '2026-11-10', '2026-11-12', 2, 900.00, 900.00, 'Confirmada', 'Reservada', '2026-10-12');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '101', '2026-09-16', '2026-09-19', 1, 360.00, 180.00, 'Confirmada', 'Asistio', '2026-09-15');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Carlos Ramírez', '201', '2026-09-24', '2026-09-27', 4, 960.00, 960.00, 'Confirmada', 'Asistio', '2026-09-22');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion, fecha_cancelacion) values ('Luis Gómez', '102', '2026-10-08', '2026-10-11', 2, 600.00, 0.00, 'Pendiente', 'Cancelada', '2026-10-05', '2026-10-10');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '202', '2026-10-17', '2026-10-20', 2, 1350.00, 675.00, 'Confirmada', 'Asistio', '2026-10-12');
 
 insert into pago (id_reserva, cliente, habitacion, monto, metodo_pago, fecha) values (1, 'Ana Torres', '201', 640.00, 'Tarjeta', '2026-10-21');
 insert into pago (id_reserva, cliente, habitacion, monto, metodo_pago, fecha) values (3, 'Luis Gómez', '202', 450.00, 'Efectivo', '2026-10-22');
 insert into pago (id_reserva, cliente, habitacion, monto, metodo_pago, fecha) values (3, 'Luis Gómez', '202', 450.00, 'Efectivo', '2026-10-23');
+insert into pago (id_reserva, cliente, habitacion, monto, metodo_pago, fecha) values (4, 'Ana Torres', '101', 180.00, 'Tarjeta', '2026-09-16');
+insert into pago (id_reserva, cliente, habitacion, monto, metodo_pago, fecha) values (5, 'Carlos Ramírez', '201', 960.00, 'Efectivo', '2026-09-24');
+insert into pago (id_reserva, cliente, habitacion, monto, metodo_pago, fecha) values (7, 'Ana Torres', '202', 675.00, 'Tarjeta', '2026-10-17');

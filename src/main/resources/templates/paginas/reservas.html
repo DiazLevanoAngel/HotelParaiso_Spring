@@ -43,6 +43,7 @@
                             <th>Capacidad</th>
                             <th>Monto total</th>
                             <th>Estado</th>
+                            <th>Disponibilidad</th>
                             <th>Acciones</th>
                         </tr>
                         </thead>
@@ -55,9 +56,22 @@
                             <td th:text="${r.huespedes} + ' personas'"></td>
                             <td th:text="'S/. ' + ${#numbers.formatDecimal(r.monto, 1, 2)}"></td>
                             <td>
-                                <span th:if="${r.estado == 'Cancelada'}" class="text-danger" th:text="${r.estado}"></span>
-                                <span th:if="${r.estado == 'Confirmada'}" class="text-success">Pagada</span>
-                                <span th:if="${r.estado == 'Pendiente'}" class="text-warning">Pendiente de pago</span>
+                                <span th:if="${r.estado == 'Confirmada' and r.montoPagado >= r.monto}"
+                                      class="text-success">
+                                    Pago completo
+                                </span>
+                                <span th:if="${r.estado == 'Confirmada' and r.montoPagado < r.monto}"
+                                      class="text-warning">
+                                    Pago confirmado
+                                </span>
+                                <span th:if="${r.estado == 'Pendiente'}" class="text-warning">
+                                    Pendiente de pago
+                                </span>
+                            </td>
+                            <td>
+                                <span th:text="${r.estadoReserva}"
+                                      th:class="${r.estadoReserva == 'Cancelada' ? 'text-danger' :
+                                      (r.estadoReserva == 'Asistio' ? 'text-primary' : 'text-secondary')}"></span>
                             </td>
                             <td class="text-nowrap">
                                 <button class="btn btn-warning btn-sm" type="button"
@@ -66,7 +80,13 @@
                                         th:data-bs-target="'#modalEditar' + ${r.id}">Editar</button>
                                 <form th:action="@{/reservas/eliminar/{id}(id=${r.id})}" method="post"
                                       class="d-inline">
-                                    <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+                                    <button class="btn btn-danger btn-sm" type="submit"
+                                            th:if="${r.estadoReserva == 'Reservada'}">Cancelar</button>
+                                </form>
+                                <form th:action="@{/reservas/asistio/{id}(id=${r.id})}" method="post"
+                                      class="d-inline">
+                                    <button class="btn btn-success btn-sm" type="submit"
+                                            th:if="${r.estadoReserva == 'Reservada'}">Asistió</button>
                                 </form>
                                 <button class="btn btn-info btn-sm" type="button"
                                         data-bs-toggle="modal"
@@ -76,7 +96,7 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(reservas)}">
-                            <td colspan="8" class="text-center text-secondary">
+                            <td colspan="9" class="text-center text-secondary">
                                 No hay reservas registradas todavía.
                             </td>
                         </tr>

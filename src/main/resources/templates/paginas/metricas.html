@@ -23,19 +23,17 @@
             <main>
                 <div class="content-head">
                     <h2>Métricas del hotel</h2>
-                    <p class="text-secondary mb-0">Evolución mensual de los principales indicadores.</p>
+                    <p class="text-secondary mb-0">Evolución semanal de los principales indicadores.</p>
                 </div>
 
                 <div class="row g-4">
                     <div class="col-12 col-lg-6">
                         <article class="card metric-card h-100">
                             <div class="card-body">
-                                <h3 class="h5">Ocupación mensual</h3>
-                                <p class="metric-description">Porcentaje de ocupación registrado por mes.</p>
-                                <div class="line-chart" role="img" aria-label="Ocupación mensual: Enero 62%, Febrero 68%, Marzo 71%, Abril 76%, Mayo 73%, Junio 81%">
-                                    <span class="y-label y-top">100%</span><span class="y-label y-bottom">0%</span>
-                                    <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true"><line class="chart-axis" x1="42" y1="20" x2="42" y2="184"></line><line class="chart-axis" x1="42" y1="184" x2="580" y2="184"></line><line class="chart-grid" x1="42" y1="102" x2="580" y2="102"></line><polyline class="chart-line line-blue" points="42,82 150,72 258,67 366,59 474,63 580,51"></polyline><circle class="chart-dot dot-blue" cx="42" cy="82" r="5"></circle><circle class="chart-dot dot-blue" cx="150" cy="72" r="5"></circle><circle class="chart-dot dot-blue" cx="258" cy="67" r="5"></circle><circle class="chart-dot dot-blue" cx="366" cy="59" r="5"></circle><circle class="chart-dot dot-blue" cx="474" cy="63" r="5"></circle><circle class="chart-dot dot-blue" cx="580" cy="51" r="5"></circle></svg>
-                                    <div class="x-labels"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div>
+                                <h3 class="h5">Ocupación semanal</h3>
+                                <p class="metric-description">Porcentaje de ocupación registrado por semana.</p>
+                                <div class="line-chart">
+                                    <canvas id="ocupacionChart" aria-label="Ocupación mensual"></canvas>
                                 </div>
                             </div>
                         </article>
@@ -44,12 +42,10 @@
                     <div class="col-12 col-lg-6">
                         <article class="card metric-card h-100">
                             <div class="card-body">
-                                <h3 class="h5">Ingresos mensuales</h3>
-                                <p class="metric-description">Ingresos generados en soles durante cada mes.</p>
-                                <div class="line-chart" role="img" aria-label="Ingresos mensuales: Enero 10200 soles, Febrero 11800 soles, Marzo 12450 soles, Abril 13200 soles, Mayo 14100 soles, Junio 15600 soles">
-                                    <span class="y-label y-top">S/ 16k</span><span class="y-label y-bottom">S/ 0</span>
-                                    <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true"><line class="chart-axis" x1="42" y1="20" x2="42" y2="184"></line><line class="chart-axis" x1="42" y1="184" x2="580" y2="184"></line><line class="chart-grid" x1="42" y1="102" x2="580" y2="102"></line><polyline class="chart-line line-green" points="42,80 150,63 258,55 366,48 474,39 580,24"></polyline><circle class="chart-dot dot-green" cx="42" cy="80" r="5"></circle><circle class="chart-dot dot-green" cx="150" cy="63" r="5"></circle><circle class="chart-dot dot-green" cx="258" cy="55" r="5"></circle><circle class="chart-dot dot-green" cx="366" cy="48" r="5"></circle><circle class="chart-dot dot-green" cx="474" cy="39" r="5"></circle><circle class="chart-dot dot-green" cx="580" cy="24" r="5"></circle></svg>
-                                    <div class="x-labels"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div>
+                                <h3 class="h5">Ingresos semanales</h3>
+                                <p class="metric-description">Ingresos generados en soles durante cada semana.</p>
+                                <div class="line-chart">
+                                    <canvas id="ingresosChart" aria-label="Ingresos mensuales"></canvas>
                                 </div>
                             </div>
                         </article>
@@ -58,12 +54,10 @@
                     <div class="col-12 col-lg-6">
                         <article class="card metric-card h-100">
                             <div class="card-body">
-                                <h3 class="h5">Reservas mensuales</h3>
-                                <p class="metric-description">Cantidad total de reservas registradas por mes.</p>
-                                <div class="line-chart" role="img" aria-label="Reservas mensuales: Enero 112, Febrero 128, Marzo 136, Abril 142, Mayo 151, Junio 168">
-                                    <span class="y-label y-top">180</span><span class="y-label y-bottom">0</span>
-                                    <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true"><line class="chart-axis" x1="42" y1="20" x2="42" y2="184"></line><line class="chart-axis" x1="42" y1="184" x2="580" y2="184"></line><line class="chart-grid" x1="42" y1="102" x2="580" y2="102"></line><polyline class="chart-line line-orange" points="42,82 150,68 258,61 366,56 474,47 580,31"></polyline><circle class="chart-dot dot-orange" cx="42" cy="82" r="5"></circle><circle class="chart-dot dot-orange" cx="150" cy="68" r="5"></circle><circle class="chart-dot dot-orange" cx="258" cy="61" r="5"></circle><circle class="chart-dot dot-orange" cx="366" cy="56" r="5"></circle><circle class="chart-dot dot-orange" cx="474" cy="47" r="5"></circle><circle class="chart-dot dot-orange" cx="580" cy="31" r="5"></circle></svg>
-                                    <div class="x-labels"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div>
+                                <h3 class="h5">Reservas semanales</h3>
+                                <p class="metric-description">Cantidad total de reservas registradas por semana.</p>
+                                <div class="line-chart">
+                                    <canvas id="reservasChart" aria-label="Reservas mensuales"></canvas>
                                 </div>
                             </div>
                         </article>
@@ -72,12 +66,10 @@
                     <div class="col-12 col-lg-6">
                         <article class="card metric-card h-100">
                             <div class="card-body">
-                                <h3 class="h5">Cancelaciones mensuales</h3>
-                                <p class="metric-description">Cantidad total de reservas canceladas por mes.</p>
-                                <div class="line-chart" role="img" aria-label="Cancelaciones mensuales: Enero 12, Febrero 10, Marzo 14, Abril 9, Mayo 11, Junio 7">
-                                    <span class="y-label y-top">16</span><span class="y-label y-bottom">0</span>
-                                    <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true"><line class="chart-axis" x1="42" y1="20" x2="42" y2="184"></line><line class="chart-axis" x1="42" y1="184" x2="580" y2="184"></line><line class="chart-grid" x1="42" y1="102" x2="580" y2="102"></line><polyline class="chart-line line-red" points="42,61 150,82 258,41 366,92 474,72 580,113"></polyline><circle class="chart-dot dot-red" cx="42" cy="61" r="5"></circle><circle class="chart-dot dot-red" cx="150" cy="82" r="5"></circle><circle class="chart-dot dot-red" cx="258" cy="41" r="5"></circle><circle class="chart-dot dot-red" cx="366" cy="92" r="5"></circle><circle class="chart-dot dot-red" cx="474" cy="72" r="5"></circle><circle class="chart-dot dot-red" cx="580" cy="113" r="5"></circle></svg>
-                                    <div class="x-labels"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div>
+                                <h3 class="h5">Cancelaciones semanales</h3>
+                                <p class="metric-description">Cantidad total de reservas canceladas por semana.</p>
+                                <div class="line-chart">
+                                    <canvas id="cancelacionesChart" aria-label="Cancelaciones mensuales"></canvas>
                                 </div>
                             </div>
                         </article>
@@ -90,6 +82,62 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous">
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    const etiquetas = /*[[${etiquetasMetricas}]]*/ [];
+    const ocupacion = /*[[${ocupacionMensual}]]*/ [];
+    const ingresos = /*[[${ingresosMensuales}]]*/ [];
+    const reservas = /*[[${reservasMensuales}]]*/ [];
+    const cancelaciones = /*[[${cancelacionesMensuales}]]*/ [];
+
+    const opciones = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
+            x: { grid: { display: false } }
+        }
+    };
+
+    function crearGrafico(id, datos, color, etiqueta, porcentaje) {
+        new Chart(document.getElementById(id), {
+            type: 'line',
+            data: {
+                labels: etiquetas,
+                datasets: [{
+                    label: etiqueta,
+                    data: datos,
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 5,
+                    tension: .25
+                }]
+            },
+            options: {
+                ...opciones,
+                scales: {
+                    ...opciones.scales,
+                    y: {
+                        ...opciones.scales.y,
+                        ticks: {
+                            callback: value => porcentaje ? value + '%' : value
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    crearGrafico('ocupacionChart', ocupacion, '#0d6efd', 'Ocupación', true);
+    crearGrafico('ingresosChart', ingresos, '#198754', 'Ingresos', false);
+    crearGrafico('reservasChart', reservas, '#fd7e14', 'Reservas', false);
+    crearGrafico('cancelacionesChart', cancelaciones, '#dc3545', 'Cancelaciones', false);
 </script>
 </body>
 </html>

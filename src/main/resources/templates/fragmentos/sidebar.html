@@ -8,40 +8,54 @@
 
     <ul class="nav nav-pills flex-column">
         <li class="nav-item mb-2 mt-2">
-            <span class="fw-bold text-primary">Panel</span>
+            <span class="fw-bold text-primary">Inicio</span>
         </li>
         <li class="nav-item mb-3">
-            <a th:href="@{/home}" class="nav-link">Inicio</a>
+            <a th:href="@{/home}" class="nav-link sidebar-link">
+                <img class="sidebar-icon" th:src="@{/img/house.svg}" alt="">Inicio
+            </a>
+        </li>
+
+        <li class="nav-item mb-2 mt-2">
+            <span class="fw-bold text-primary">Gestión hotelera</span>
+        </li>
+        <li class="nav-item mb-1">
+            <a th:href="@{/clientes}" class="nav-link sidebar-link">
+                <img class="sidebar-icon" th:src="@{/img/users-round.svg}" alt="">Clientes
+            </a>
+        </li>
+        <li class="nav-item mb-1">
+            <a th:href="@{/reservas}" class="nav-link sidebar-link">
+                <img class="sidebar-icon" th:src="@{/img/calendar-days.svg}" alt="">Reservas
+            </a>
+        </li>
+        <li class="nav-item mb-3">
+            <a th:href="@{/pagos}" class="nav-link sidebar-link">
+                <img class="sidebar-icon" th:src="@{/img/wallet.svg}" alt="">Pagos
+            </a>
         </li>
 
         <li class="nav-item mb-2 mt-2">
             <span class="fw-bold text-primary">Inventario</span>
         </li>
         <li class="nav-item mb-1">
-            <a th:href="@{/habitaciones}" class="nav-link">Habitaciones</a>
+            <a th:href="@{/categorias}" class="nav-link sidebar-link">
+                <img class="sidebar-icon" th:src="@{/img/tags.svg}" alt="">Categorías
+            </a>
         </li>
         <li class="nav-item mb-3">
-            <a th:href="@{/categorias}" class="nav-link">Categorías</a>
-        </li>
-
-        <li class="nav-item mb-2 mt-2">
-            <span class="fw-bold text-primary">Operación</span>
-        </li>
-        <li class="nav-item mb-1">
-            <a th:href="@{/clientes}" class="nav-link">Clientes</a>
-        </li>
-        <li class="nav-item mb-1">
-            <a th:href="@{/reservas}" class="nav-link">Reservas</a>
-        </li>
-        <li class="nav-item mb-3">
-            <a th:href="@{/pagos}" class="nav-link">Pagos</a>
+            <a th:href="@{/habitaciones}" class="nav-link sidebar-link">
+                <span class="sidebar-icon">▦</span>Habitaciones
+            </a>
         </li>
 
         <li class="nav-item mb-2 mt-2">
             <span class="fw-bold text-primary">Análisis</span>
         </li>
         <li class="nav-item mb-1">
-            <a th:href="@{/metricas}" class="nav-link">Métricas</a>
+            <a th:href="@{/metricas}" class="nav-link sidebar-link">
+                <img class="sidebar-icon" th:src="@{/img/chart-no-axes-column.svg}" alt="">Métricas
+            </a>
         </li>
     </ul>
 </aside>

@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface ReservaRepository extends JpaRepository<ReservaEntity, Integer> {
     List<ReservaEntity> findAllByActivoTrueOrderByIdDesc();
-    long countByClienteIgnoreCaseAndActivoTrue(String cliente);
-    long countByEstadoNotAndActivoTrue(String estado);
-    boolean existsByClienteIgnoreCaseAndActivoTrue(String cliente);
-    boolean existsByHabitacionIgnoreCaseAndActivoTrue(String habitacion);
+    long countByClienteIgnoreCaseAndEstadoReservaNotAndActivoTrue(String cliente, String estadoReserva);
+    long countByEstadoReservaNotAndActivoTrue(String estadoReserva);
+    boolean existsByClienteIgnoreCaseAndEstadoReservaNotAndActivoTrue(String cliente, String estadoReserva);
+    boolean existsByHabitacionIgnoreCaseAndEstadoReservaNotAndActivoTrue(String habitacion, String estadoReserva);
     List<ReservaEntity> findByHabitacionIgnoreCaseAndActivoTrue(String habitacion);
     
 }

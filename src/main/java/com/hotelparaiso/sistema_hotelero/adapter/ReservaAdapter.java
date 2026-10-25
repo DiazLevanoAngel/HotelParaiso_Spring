@@ -19,6 +19,10 @@ public class ReservaAdapter {
         model.setMonto(entity.getMonto());
         model.setMontoPagado(entity.getMontoPagado());
         model.setEstado(entity.getEstado());
+        model.setEstadoReserva(entity.getEstadoReserva() != null
+                ? entity.getEstadoReserva() : "Reservada");
+        model.setFechaCreacion(entity.getFechaCreacion());
+        model.setFechaCancelacion(entity.getFechaCancelacion());
         model.setActivo(entity.getActivo() != null ? entity.getActivo() : true);
         return model;
     }
@@ -35,6 +39,11 @@ public class ReservaAdapter {
         entity.setMonto(model.getMonto());
         entity.setMontoPagado(model.getMontoPagado());
         entity.setEstado(model.getEstado());
+        entity.setEstadoReserva(model.getEstadoReserva() != null
+                ? model.getEstadoReserva() : "Reservada");
+        entity.setFechaCreacion(model.getFechaCreacion() != null
+                ? model.getFechaCreacion() : java.time.LocalDate.now());
+        entity.setFechaCancelacion(model.getFechaCancelacion());
         entity.setActivo(model.getActivo() != null ? model.getActivo() : true);
         return entity;
     }

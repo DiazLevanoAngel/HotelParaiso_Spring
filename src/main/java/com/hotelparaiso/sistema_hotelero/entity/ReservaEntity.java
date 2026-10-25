@@ -30,6 +30,15 @@ public class ReservaEntity {
 
     private String estado = "Pendiente";
 
+    @Column(name = "estado_reserva", length = 15, nullable = false)
+    private String estadoReserva = "Reservada";
+
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDate fechaCreacion = LocalDate.now();
+
+    @Column(name = "fecha_cancelacion")
+    private LocalDate fechaCancelacion;
+
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.REMOVE)
     private List<PagoEntity> pagos = new ArrayList<>();
 
@@ -59,6 +68,15 @@ public class ReservaEntity {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public String getEstadoReserva() { return estadoReserva; }
+    public void setEstadoReserva(String estadoReserva) { this.estadoReserva = estadoReserva; }
+
+    public LocalDate getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDate fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDate getFechaCancelacion() { return fechaCancelacion; }
+    public void setFechaCancelacion(LocalDate fechaCancelacion) { this.fechaCancelacion = fechaCancelacion; }
 
     public List<PagoEntity> getPagos() { return pagos; }
     public void setPagos(List<PagoEntity> pagos) { this.pagos = pagos; }

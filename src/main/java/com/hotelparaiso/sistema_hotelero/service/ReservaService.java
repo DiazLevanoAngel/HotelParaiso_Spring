@@ -46,6 +46,14 @@ public class ReservaService {
         return resultado.size() > cantidad ? resultado.subList(0, cantidad) : resultado;
     }
 
+    public List<Reserva> listarUltimasAsistidas(int cantidad) {
+        List<Reserva> resultado = listar().stream()
+                .filter(reserva -> "Asistio".equals(reserva.getEstadoReserva()))
+                .limit(cantidad)
+                .collect(Collectors.toList());
+        return resultado;
+    }
+
     public Reserva buscarPorID(int id) {
         return reservaRepository.findById(id)
                 .map(reservaAdapter::toModel)
@@ -53,25 +61,25 @@ public class ReservaService {
     }
 
     public int contarActivas() {
-        return (int) reservaRepository.countByEstadoNotAndActivoTrue("Cancelada");
+        return (int) reservaRepository.countByEstadoReservaNotAndActivoTrue("Cancelada");
     }
 
     public int contarPorCliente(String cliente) {
-        return (int) reservaRepository.countByClienteIgnoreCaseAndActivoTrue(cliente);
+        return (int) reservaRepository.countByClienteIgnoreCaseAndEstadoReservaNotAndActivoTrue(cliente, "Cancelada");
     }
 
     public boolean tieneReservasCliente(String cliente) {
-        return reservaRepository.existsByClienteIgnoreCaseAndActivoTrue(cliente);
+        return reservaRepository.existsByClienteIgnoreCaseAndEstadoReservaNotAndActivoTrue(cliente, "Cancelada");
     }
 
     public boolean tieneReservasHabitacion(String habitacion) {
-        return reservaRepository.existsByHabitacionIgnoreCaseAndActivoTrue(habitacion);
+        return reservaRepository.existsByHabitacionIgnoreCaseAndEstadoReservaNotAndActivoTrue(habitacion, "Cancelada");
     }
 
     public boolean habitacionDisponible(String habitacion, LocalDate entrada,
                                         LocalDate salida, int idExcluir) {
         for (ReservaEntity reserva : reservaRepository.findByHabitacionIgnoreCaseAndActivoTrue(habitacion)) {
-            boolean activa = !"Cancelada".equals(reserva.getEstado());
+            boolean activa = !"Cancelada".equals(reserva.getEstadoReserva());
             boolean seCruzan = entrada.isBefore(reserva.getCheckOut())
                     && salida.isAfter(reserva.getCheckIn());
 
@@ -83,6 +91,12 @@ public class ReservaService {
     }
 
     public boolean registrarReserva(Reserva reserva) {
+        if (reserva.getEstadoReserva() == null) {
+            reserva.setEstadoReserva("Reservada");
+        }
+        if (reserva.getFechaCreacion() == null) {
+            reserva.setFechaCreacion(LocalDate.now());
+        }
         Habitacion habitacion = habitacionService.buscarPorNumero(reserva.getHabitacion());
         if (habitacion == null || reserva.getCheckIn() == null || reserva.getCheckOut() == null
                 || !reserva.getCheckOut().isAfter(reserva.getCheckIn())) {
@@ -163,11 +177,39 @@ public class ReservaService {
         if (reserva == null) {
             return false;
         }
+
         for (PagoEntity pago : pagoRepository.findByReserva_Id(id)) {
             pago.setActivo(false);
             pagoRepository.save(pago);
         }
         reserva.setActivo(false);
+        reservaRepository.save(reserva);
+        return true;
+    }
+
+    @Transactional
+    public boolean cancelar(int id) {
+        ReservaEntity reserva = reservaRepository.findById(id).orElse(null);
+        if (reserva == null || "Asistio".equals(reserva.getEstadoReserva())) {
+            return false;
+        }
+        for (PagoEntity pago : pagoRepository.findByReserva_Id(id)) {
+            pago.setActivo(false);
+            pagoRepository.save(pago);
+        }
+        reserva.setEstadoReserva("Cancelada");
+        reserva.setFechaCancelacion(LocalDate.now());
+        reservaRepository.save(reserva);
+        return true;
+    }
+
+    @Transactional
+    public boolean marcarAsistio(int id) {
+        ReservaEntity reserva = reservaRepository.findById(id).orElse(null);
+        if (reserva == null || !"Reservada".equals(reserva.getEstadoReserva())) {
+            return false;
+        }
+        reserva.setEstadoReserva("Asistio");
         reservaRepository.save(reserva);
         return true;
     }
@@ -179,7 +221,7 @@ public class ReservaService {
         }
         reserva.setMontoPagado(totalPagado);
 
-        if (!"Cancelada".equals(reserva.getEstado())) {
+        if (!"Cancelada".equals(reserva.getEstadoReserva())) {
             boolean alcanzaAdelanto = totalPagado + 0.001 >= reserva.getMonto() * 0.50;
             reserva.setEstado(alcanzaAdelanto ? "Confirmada" : "Pendiente");
         }

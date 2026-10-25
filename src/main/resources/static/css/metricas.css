@@ -40,6 +40,11 @@ main {
     width: 100%;
 }
 
+.line-chart canvas {
+    height: 184px !important;
+    width: 100% !important;
+}
+
 .chart-axis { stroke: #94a3b8; stroke-width: 1; }
 .chart-grid { stroke: #e2e8f0; stroke-dasharray: 4 4; stroke-width: 1; }
 .chart-line { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 4; }

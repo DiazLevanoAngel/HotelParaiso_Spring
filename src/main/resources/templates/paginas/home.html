@@ -44,7 +44,7 @@
                 </section>
 
                 <section class="tabla-reservas">
-                    <h3>Últimas reservas</h3>
+                    <h3>Últimas reservas con asistencia</h3>
                     <table class="table">
                         <thead>
                         <tr>
@@ -52,6 +52,7 @@
                             <th>Habitación</th>
                             <th>Fechas</th>
                             <th>Estado</th>
+                            <th>Disponibilidad</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -60,13 +61,17 @@
                             <td th:text="${r.habitacion}"></td>
                             <td th:text="${r.checkIn} + ' → ' + ${r.checkOut}"></td>
                             <td>
-                                <span th:if="${r.estado == 'Cancelada'}" class="text-danger">Cancelada</span>
                                 <span th:if="${r.estado == 'Confirmada'}" class="text-success">Pagada</span>
                                 <span th:if="${r.estado == 'Pendiente'}" class="text-warning">Pendiente de pago</span>
                             </td>
+                            <td>
+                                <span th:text="${r.estadoReserva}"
+                                      th:class="${r.estadoReserva == 'Cancelada' ? 'text-danger' :
+                                      (r.estadoReserva == 'Asistio' ? 'text-primary' : 'text-secondary')}"></span>
+                            </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(reservas)}">
-                            <td colspan="4" class="text-center text-secondary">No hay reservas registradas todavía.</td>
+                            <td colspan="5" class="text-center text-secondary">No hay reservas registradas todavía.</td>
                         </tr>
                         </tbody>
                     </table>

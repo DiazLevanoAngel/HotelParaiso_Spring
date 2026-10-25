@@ -48,7 +48,13 @@ public class ReservaController {
 
     @PostMapping("/reservas/eliminar/{id}")
     public String eliminar(@PathVariable int id) {
-        reservaService.eliminar(id);
+        reservaService.cancelar(id);
+        return "redirect:/reservas";
+    }
+
+    @PostMapping("/reservas/asistio/{id}")
+    public String asistio(@PathVariable int id) {
+        reservaService.marcarAsistio(id);
         return "redirect:/reservas";
     }
 }

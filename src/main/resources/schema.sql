@@ -37,6 +37,9 @@ create table if not exists reserva(
     monto        double precision,
     monto_pagado double precision default 0,
     estado       VARCHAR(20) default 'Pendiente',
+    estado_reserva VARCHAR(15) default 'Reservada' not null,
+    fecha_creacion DATE default CURRENT_DATE not null,
+    fecha_cancelacion DATE,
     activo       boolean default true not null
     );
 
