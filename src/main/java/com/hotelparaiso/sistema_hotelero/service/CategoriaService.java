@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hotelparaiso.sistema_hotelero.entity.CategoriaEntity;
+
 @Service
 public class CategoriaService {
 
@@ -20,7 +22,7 @@ public class CategoriaService {
     }
 
     public List<Categoria> listar() {
-        return categoriaRepository.findAll().stream()
+        return categoriaRepository.findByActivoTrue().stream()
                 .map(categoriaAdapter::toModel)
                 .collect(Collectors.toList());
     }
@@ -32,7 +34,7 @@ public class CategoriaService {
     }
 
     public boolean existeNombre(String nombre, int idExcluir) {
-        return categoriaRepository.existsByNombreIgnoreCaseAndIdNot(nombre, idExcluir);
+        return categoriaRepository.existsByNombreIgnoreCaseAndIdNotAndActivoTrue(nombre, idExcluir);
     }
 
     public Categoria guardarCategoria(Categoria categoria) {
@@ -41,6 +43,9 @@ public class CategoriaService {
     }
 
     public void eliminar(int id) {
-        categoriaRepository.deleteById(id);
-    }
+        CategoriaEntity entity = categoriaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
+        entity.setActivo(false);
+        categoriaRepository.save(entity);
+}
 }

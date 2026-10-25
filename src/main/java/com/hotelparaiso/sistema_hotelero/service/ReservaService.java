@@ -14,6 +14,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 public class ReservaService {
 
@@ -24,8 +26,8 @@ public class ReservaService {
     private final CategoriaService categoriaService;
 
     public ReservaService(ReservaRepository reservaRepository, PagoRepository pagoRepository,
-                          ReservaAdapter reservaAdapter, HabitacionService habitacionService,
-                          CategoriaService categoriaService) {
+        ReservaAdapter reservaAdapter, HabitacionService habitacionService,
+        CategoriaService categoriaService) {
         this.reservaRepository = reservaRepository;
         this.pagoRepository = pagoRepository;
         this.reservaAdapter = reservaAdapter;
@@ -34,7 +36,7 @@ public class ReservaService {
     }
 
     public List<Reserva> listar() {
-        return reservaRepository.findAllByOrderByIdDesc().stream()
+        return reservaRepository.findAllByActivoTrueOrderByIdDesc().stream()
                 .map(reservaAdapter::toModel)
                 .collect(Collectors.toList());
     }
@@ -51,24 +53,24 @@ public class ReservaService {
     }
 
     public int contarActivas() {
-        return (int) reservaRepository.countByEstadoNot("Cancelada");
+        return (int) reservaRepository.countByEstadoNotAndActivoTrue("Cancelada");
     }
 
     public int contarPorCliente(String cliente) {
-        return (int) reservaRepository.countByClienteIgnoreCase(cliente);
+        return (int) reservaRepository.countByClienteIgnoreCaseAndActivoTrue(cliente);
     }
 
     public boolean tieneReservasCliente(String cliente) {
-        return reservaRepository.existsByClienteIgnoreCase(cliente);
+        return reservaRepository.existsByClienteIgnoreCaseAndActivoTrue(cliente);
     }
 
     public boolean tieneReservasHabitacion(String habitacion) {
-        return reservaRepository.existsByHabitacionIgnoreCase(habitacion);
+        return reservaRepository.existsByHabitacionIgnoreCaseAndActivoTrue(habitacion);
     }
 
     public boolean habitacionDisponible(String habitacion, LocalDate entrada,
                                         LocalDate salida, int idExcluir) {
-        for (ReservaEntity reserva : reservaRepository.findByHabitacionIgnoreCase(habitacion)) {
+        for (ReservaEntity reserva : reservaRepository.findByHabitacionIgnoreCaseAndActivoTrue(habitacion)) {
             boolean activa = !"Cancelada".equals(reserva.getEstado());
             boolean seCruzan = entrada.isBefore(reserva.getCheckOut())
                     && salida.isAfter(reserva.getCheckIn());
@@ -155,17 +157,24 @@ public class ReservaService {
         return reservaAdapter.toModel(guardada);
     }
 
+    @Transactional
     public boolean eliminar(int id) {
-        if (!reservaRepository.existsById(id)) {
+        ReservaEntity reserva = reservaRepository.findById(id).orElse(null);
+        if (reserva == null) {
             return false;
         }
-        reservaRepository.deleteById(id);
+        for (PagoEntity pago : pagoRepository.findByReserva_Id(id)) {
+            pago.setActivo(false);
+            pagoRepository.save(pago);
+        }
+        reserva.setActivo(false);
+        reservaRepository.save(reserva);
         return true;
     }
 
     public void actualizarEstadoPorPagos(Reserva reserva) {
         double totalPagado = 0;
-        for (PagoEntity pago : pagoRepository.findByReserva_Id(reserva.getId())) {
+        for (PagoEntity pago : pagoRepository.findByReserva_IdAndActivoTrue(reserva.getId())) {
             totalPagado += pago.getMonto();
         }
         reserva.setMontoPagado(totalPagado);

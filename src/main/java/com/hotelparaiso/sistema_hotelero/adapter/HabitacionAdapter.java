@@ -17,6 +17,7 @@ public class HabitacionAdapter {
         model.setDescripcion(entity.getDescripcion());
         model.setEstado(entity.getEstado());
         model.setCategoriaId(entity.getCategoria() != null ? entity.getCategoria().getId() : 0);
+        model.setActivo(entity.getActivo() != null ? entity.getActivo() : true);
         return model;
     }
 
@@ -29,6 +30,7 @@ public class HabitacionAdapter {
         entity.setDescripcion(model.getDescripcion());
         entity.setEstado(model.getEstado());
         entity.setCategoria(categoria);
+        entity.setActivo(model.getActivo() != null ? model.getActivo() : true);
         return entity;
     }
 }

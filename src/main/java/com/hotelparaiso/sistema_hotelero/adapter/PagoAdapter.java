@@ -18,6 +18,7 @@ public class PagoAdapter {
         model.setMonto(entity.getMonto());
         model.setMetodoPago(entity.getMetodoPago());
         model.setFecha(entity.getFecha());
+        model.setActivo(entity.getActivo() != null ? entity.getActivo() : true);
         return model;
     }
 
@@ -31,6 +32,7 @@ public class PagoAdapter {
         entity.setMonto(model.getMonto());
         entity.setMetodoPago(model.getMetodoPago());
         entity.setFecha(model.getFecha());
+        entity.setActivo(model.getActivo() != null ? model.getActivo() : true);
         return entity;
     }
 }

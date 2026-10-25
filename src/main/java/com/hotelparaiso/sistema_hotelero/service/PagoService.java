@@ -23,7 +23,7 @@ public class PagoService {
     private final ReservaService reservaService;
 
     public PagoService(PagoRepository pagoRepository, ReservaRepository reservaRepository,
-                       PagoAdapter pagoAdapter, ReservaService reservaService) {
+        PagoAdapter pagoAdapter, ReservaService reservaService) {
         this.pagoRepository = pagoRepository;
         this.reservaRepository = reservaRepository;
         this.pagoAdapter = pagoAdapter;
@@ -31,7 +31,7 @@ public class PagoService {
     }
 
     public List<Pago> listar() {
-        return pagoRepository.findAllByOrderByIdDesc().stream()
+        return pagoRepository.findAllByActivoTrueOrderByIdDesc().stream()
                 .map(pagoAdapter::toModel)
                 .collect(Collectors.toList());
     }
@@ -80,7 +80,8 @@ public class PagoService {
             return false;
         }
         int reservaId = pago.getReserva() != null ? pago.getReserva().getId() : 0;
-        pagoRepository.delete(pago);
+        pago.setActivo(false);                
+        pagoRepository.save(pago);
 
         Reserva reserva = reservaService.buscarPorID(reservaId);
         if (reserva != null) {
@@ -97,13 +98,14 @@ public class PagoService {
 
     public double totalIngresos() {
         double total = 0;
-        for (PagoEntity pago : pagoRepository.findAll()) {
+        for (PagoEntity pago : pagoRepository.findByActivoTrue()) {
             total += pago.getMonto();
         }
         return total;
     }
 
     public void eliminar(int id) {
-        pagoRepository.deleteById(id);
+        eliminarPago(id);
+        
     }
 }

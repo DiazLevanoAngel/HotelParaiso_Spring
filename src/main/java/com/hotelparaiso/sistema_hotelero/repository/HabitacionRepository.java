@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface HabitacionRepository extends JpaRepository<HabitacionEntity, Integer> {
-    boolean existsByNumeroIgnoreCaseAndIdNot(String numero, int id);
-    boolean existsByCategoria_Id(int categoriaId);
-    List<HabitacionEntity> findByEstadoIgnoreCase(String estado);
-    Optional<HabitacionEntity> findByNumeroIgnoreCase(String numero);
+    List<HabitacionEntity> findByActivoTrue();
+    List<HabitacionEntity> findByEstadoIgnoreCaseAndActivoTrue(String estado);
+    Optional<HabitacionEntity> findByNumeroIgnoreCaseAndActivoTrue(String numero);
+    boolean existsByNumeroIgnoreCaseAndIdNotAndActivoTrue(String numero, int id);
+    boolean existsByCategoria_IdAndActivoTrue(int categoriaId);
 }

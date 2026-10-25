@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import com.hotelparaiso.sistema_hotelero.entity.ClienteEntity;
 
 @Service
 public class ClienteService {
@@ -16,14 +17,14 @@ public class ClienteService {
     private final ReservaService reservaService;
 
     public ClienteService(ClienteRepository clienteRepository, ClienteAdapter clienteAdapter,
-                          ReservaService reservaService) {
+        ReservaService reservaService) {
         this.clienteRepository = clienteRepository;
         this.clienteAdapter = clienteAdapter;
         this.reservaService = reservaService;
     }
 
     public List<Cliente> listar() {
-        return clienteRepository.findAll().stream()
+        return clienteRepository.findByActivoTrue().stream()
                 .map(clienteAdapter::toModel)
                 .collect(Collectors.toList());
     }
@@ -40,7 +41,10 @@ public class ClienteService {
     }
 
     public void eliminar(int id) {
-        clienteRepository.deleteById(id);
+        ClienteEntity entity = clienteRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Cliente no encontrado con ID: " + id));
+        entity.setActivo(false);
+        clienteRepository.save(entity);
     }
 
     public boolean eliminarCliente(int id) {

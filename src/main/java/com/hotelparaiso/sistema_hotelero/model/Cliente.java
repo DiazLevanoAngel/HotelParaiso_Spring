@@ -7,6 +7,7 @@ public class Cliente {
     private String documento;
     private String telefono;
     private String correo;
+    private Boolean activo = true;
 
     public int getId() {
         return id;
@@ -46,5 +47,13 @@ public class Cliente {
 
     public void setCorreo(String correo) {
         this.correo = correo;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
 }

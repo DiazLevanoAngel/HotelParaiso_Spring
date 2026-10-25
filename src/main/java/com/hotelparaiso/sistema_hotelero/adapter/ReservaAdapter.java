@@ -19,6 +19,7 @@ public class ReservaAdapter {
         model.setMonto(entity.getMonto());
         model.setMontoPagado(entity.getMontoPagado());
         model.setEstado(entity.getEstado());
+        model.setActivo(entity.getActivo() != null ? entity.getActivo() : true);
         return model;
     }
 
@@ -34,6 +35,7 @@ public class ReservaAdapter {
         entity.setMonto(model.getMonto());
         entity.setMontoPagado(model.getMontoPagado());
         entity.setEstado(model.getEstado());
+        entity.setActivo(model.getActivo() != null ? model.getActivo() : true);
         return entity;
     }
 }

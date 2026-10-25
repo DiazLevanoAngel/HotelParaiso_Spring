@@ -62,4 +62,9 @@ public class ReservaEntity {
 
     public List<PagoEntity> getPagos() { return pagos; }
     public void setPagos(List<PagoEntity> pagos) { this.pagos = pagos; }
+
+    private Boolean activo = true;
+
+    public Boolean getActivo() { return activo; }
+    public void setActivo(Boolean activo) { this.activo = activo; }
 }

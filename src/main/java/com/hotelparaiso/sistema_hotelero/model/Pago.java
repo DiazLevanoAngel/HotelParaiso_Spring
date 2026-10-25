@@ -11,6 +11,7 @@ public class Pago {
     private Double monto;
     private String metodoPago;
     private LocalDate fecha;
+    private Boolean activo = true;
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -32,4 +33,7 @@ public class Pago {
 
     public LocalDate getFecha() { return fecha; }
     public void setFecha(LocalDate fecha) { this.fecha = fecha; }
+
+    public Boolean getActivo() { return activo; }
+    public void setActivo(Boolean activo) { this.activo = activo; }
 }
