@@ -6,6 +6,7 @@ public class Habitacion {
     private String descripcion;
     private int categoriaId;
     private String estado;
+    private Boolean activo = true;
 
     public int getId() {
         return id;
@@ -48,4 +49,11 @@ public class Habitacion {
         this.estado = estado;
     }
 
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
 }

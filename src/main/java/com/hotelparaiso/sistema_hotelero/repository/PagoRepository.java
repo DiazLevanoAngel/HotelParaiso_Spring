@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PagoRepository extends JpaRepository<PagoEntity, Integer> {
-    List<PagoEntity> findAllByOrderByIdDesc();
+    List<PagoEntity> findAllByActivoTrueOrderByIdDesc();
+    List<PagoEntity> findByActivoTrue();
+    List<PagoEntity> findByReserva_IdAndActivoTrue(int reservaId);
     List<PagoEntity> findByReserva_Id(int reservaId);
 }

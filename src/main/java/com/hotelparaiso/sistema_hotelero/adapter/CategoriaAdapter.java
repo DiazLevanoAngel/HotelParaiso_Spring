@@ -16,6 +16,7 @@ public class CategoriaAdapter {
         entity.setCapacidad(model.getCapacidad());
         entity.setPrecio(model.getPrecio());
         entity.setEstado(model.getEstado());
+        entity.setActivo(model.getActivo() != null ? model.getActivo() : true);
         return entity;
     }
 
@@ -28,6 +29,7 @@ public class CategoriaAdapter {
         model.setCapacidad(entity.getCapacidad());
         model.setPrecio(entity.getPrecio());
         model.setEstado(entity.getEstado());
+        model.setActivo(entity.getActivo() != null ? entity.getActivo() : true);
         return model;
     }
 }

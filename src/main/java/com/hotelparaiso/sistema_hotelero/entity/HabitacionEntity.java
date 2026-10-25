@@ -32,4 +32,8 @@ public class HabitacionEntity {
 
     public CategoriaEntity getCategoria() { return categoria; }
     public void setCategoria(CategoriaEntity categoria) { this.categoria = categoria; }
+
+    private Boolean activo = true;
+    public Boolean getActivo() { return activo; }
+    public void setActivo(Boolean activo) { this.activo = activo; }
 }

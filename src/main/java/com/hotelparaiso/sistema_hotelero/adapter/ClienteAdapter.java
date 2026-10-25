@@ -15,6 +15,7 @@ public class ClienteAdapter {
         entity.setDocumento(model.getDocumento());
         entity.setTelefono(model.getTelefono());
         entity.setCorreo(model.getCorreo());
+        entity.setActivo(model.getActivo() != null ? model.getActivo() : true);
         return entity;
     }
 
@@ -26,6 +27,7 @@ public class ClienteAdapter {
         model.setDocumento(entity.getDocumento());
         model.setTelefono(entity.getTelefono());
         model.setCorreo(entity.getCorreo());
+        model.setActivo(entity.getActivo() != null ? entity.getActivo() : true);
         return model;
     }
 }

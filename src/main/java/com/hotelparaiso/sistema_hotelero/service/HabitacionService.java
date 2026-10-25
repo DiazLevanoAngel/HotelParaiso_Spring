@@ -7,6 +7,8 @@ import com.hotelparaiso.sistema_hotelero.repository.CategoriaRepository;
 import com.hotelparaiso.sistema_hotelero.repository.HabitacionRepository;
 import org.springframework.stereotype.Service;
 
+import com.hotelparaiso.sistema_hotelero.entity.HabitacionEntity;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,15 +20,15 @@ public class HabitacionService {
     private final HabitacionAdapter habitacionAdapter;
 
     public HabitacionService(HabitacionRepository habitacionRepository,
-                             CategoriaRepository categoriaRepository,
-                             HabitacionAdapter habitacionAdapter) {
+        CategoriaRepository categoriaRepository,
+        HabitacionAdapter habitacionAdapter) {
         this.habitacionRepository = habitacionRepository;
         this.categoriaRepository = categoriaRepository;
         this.habitacionAdapter = habitacionAdapter;
     }
 
     public List<Habitacion> listar() {
-        return habitacionRepository.findAll().stream()
+        return habitacionRepository.findByActivoTrue().stream()
                 .map(habitacionAdapter::toModel)
                 .collect(Collectors.toList());
     }
@@ -38,7 +40,7 @@ public class HabitacionService {
     }
 
     public boolean existeNumero(String numero, int idExcluir) {
-        return habitacionRepository.existsByNumeroIgnoreCaseAndIdNot(numero, idExcluir);
+        return habitacionRepository.existsByNumeroIgnoreCaseAndIdNotAndActivoTrue(numero, idExcluir);
     }
 
     public boolean existeNumero(String numero) {
@@ -46,7 +48,7 @@ public class HabitacionService {
     }
 
     public boolean hayHabitacionesEnCategoria(int categoriaId) {
-        return habitacionRepository.existsByCategoria_Id(categoriaId);
+        return habitacionRepository.existsByCategoria_IdAndActivoTrue(categoriaId);
     }
 
     public int contarDisponibles() {
@@ -54,7 +56,7 @@ public class HabitacionService {
     }
 
     public List<Habitacion> listarDisponibles() {
-        return habitacionRepository.findByEstadoIgnoreCase("Disponible").stream()
+        return habitacionRepository.findByEstadoIgnoreCaseAndActivoTrue("Disponible").stream()
                 .map(habitacionAdapter::toModel)
                 .collect(Collectors.toList());
     }
@@ -78,14 +80,17 @@ public class HabitacionService {
     }
 
     public Habitacion buscarPorNumero(String numero) {
-        return habitacionRepository.findByNumeroIgnoreCase(numero)
+        return habitacionRepository.findByNumeroIgnoreCaseAndActivoTrue(numero)
                 .map(habitacionAdapter::toModel)
                 .orElse(null);
     }
 
     public void eliminar(int id) {
-        habitacionRepository.deleteById(id);
-    }
+    HabitacionEntity entity = habitacionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Habitación no encontrada con ID: " + id));
+    entity.setActivo(false);
+    habitacionRepository.save(entity);
+}
 
     public boolean eliminarHabitacion(int id, ReservaService reservaService) {
         Habitacion habitacion = buscarPorID(id);

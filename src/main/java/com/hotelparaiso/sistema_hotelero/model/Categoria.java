@@ -8,6 +8,7 @@ public class Categoria {
     private int capacidad;
     private double precio;
     private String estado;
+    private Boolean activo = true;
 
     public int getId() {
         return id;
@@ -50,5 +51,11 @@ public class Categoria {
     }
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+    public Boolean getActivo() { 
+        return activo; 
+    }
+    public void setActivo(Boolean activo) {
+        this.activo = activo; 
     }
 }
