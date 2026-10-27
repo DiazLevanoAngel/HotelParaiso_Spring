@@ -47,18 +47,24 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="p : ${pagos}">
+                        <tr th:each="p : ${pagos}"
+                            th:with="reserva=${@reservaService.buscarPorID(p.reservaId)}"
+                            th:class="${@reservaService.tieneDescuento(reserva) ? 'table-success' : ''}">
                             <td th:text="${p.fecha}"></td>
                             <td th:text="${p.cliente}"></td>
                             <td th:text="${p.habitacion}"></td>
-                            <td th:text="'S/. ' + ${#numbers.formatDecimal(p.monto, 1, 2)}"></td>
-                            <td th:with="reserva=${@reservaService.buscarPorID(p.reservaId)}">
+                            <td>
+                                <span th:text="'S/. ' + ${#numbers.formatDecimal(p.monto, 1, 2)}"></span>
+                                <span th:if="${@reservaService.tieneDescuento(reserva)}"
+                                      class="badge text-bg-success">Descuento aplicado</span>
+                            </td>
+                            <td th:with="reserva=${reserva}">
                                 <span th:if="${reserva != null and reserva.montoPagado >= reserva.monto * 0.5}"
                                       class="text-success">Completado</span>
                                 <span th:unless="${reserva != null and reserva.montoPagado >= reserva.monto * 0.5}"
                                       class="text-warning">Pendiente</span>
                             </td>
-                            <td th:with="reserva=${@reservaService.buscarPorID(p.reservaId)}">
+                            <td th:with="reserva=${reserva}">
                                 <span th:if="${reserva != null and reserva.montoPagado >= reserva.monto}"
                                       class="text-success">Completado</span>
                                 <span th:if="${reserva != null and reserva.montoPagado < reserva.monto}"

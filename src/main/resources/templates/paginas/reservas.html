@@ -153,7 +153,7 @@
                                         <option th:each="h : ${habitaciones}"
                                                 th:if="${h.estado == 'Disponible'}"
                                                 th:value="${h.numero}"
-                                                th:text="'Hab. ' + ${h.numero} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.nombre} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.capacidad} + ' personas'">
+                                                th:text="'Hab. ' + ${h.numero} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.nombre} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.capacidad} + ' personas — S/. ' + ${#numbers.formatDecimal(@categoriaService.buscarPorID(h.categoriaId)?.precio, 1, 2)} + ' por noche'">
                                         </option>
                                     </select>
 
@@ -202,7 +202,7 @@
                                                 th:if="${h.estado == 'Disponible' or h.numero == r.habitacion}"
                                                 th:value="${h.numero}"
                                                 th:selected="${h.numero == r.habitacion}"
-                                                th:text="'Hab. ' + ${h.numero} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.nombre} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.capacidad} + ' personas'">
+                                                th:text="'Hab. ' + ${h.numero} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.nombre} + ' — ' + ${@categoriaService.buscarPorID(h.categoriaId)?.capacidad} + ' personas — S/. ' + ${#numbers.formatDecimal(@categoriaService.buscarPorID(h.categoriaId)?.precio, 1, 2)} + ' por noche'">
                                         </option>
                                     </select>
 

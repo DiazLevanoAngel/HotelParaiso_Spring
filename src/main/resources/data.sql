@@ -21,6 +21,13 @@ insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto,
 insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion, fecha_cancelacion) values ('Luis Gómez', '102', '2026-10-08', '2026-10-11', 2, 600.00, 0.00, 'Pendiente', 'Cancelada', '2026-10-05', '2026-10-10');
 insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '202', '2026-10-17', '2026-10-20', 2, 1350.00, 675.00, 'Confirmada', 'Asistio', '2026-10-12');
 
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '101', '2026-08-03', '2026-08-06', 1, 360.00, 360.00, 'Confirmada', 'Asistio', '2026-08-01');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '102', '2026-08-12', '2026-08-14', 2, 400.00, 400.00, 'Confirmada', 'Asistio', '2026-08-10');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '201', '2026-08-20', '2026-08-22', 4, 640.00, 640.00, 'Confirmada', 'Asistio', '2026-08-18');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '202', '2026-08-28', '2026-08-30', 2, 900.00, 900.00, 'Confirmada', 'Asistio', '2026-08-26');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '101', '2026-09-04', '2026-09-07', 1, 360.00, 360.00, 'Confirmada', 'Asistio', '2026-09-02');
+insert into reserva (cliente, habitacion, check_in, check_out, huespedes, monto, monto_pagado, estado, estado_reserva, fecha_creacion) values ('Ana Torres', '102', '2026-09-10', '2026-09-12', 2, 400.00, 400.00, 'Confirmada', 'Asistio', '2026-09-08');
+
 insert into pago (id_reserva, cliente, habitacion, monto, metodo_pago, fecha) values (1, 'Ana Torres', '201', 640.00, 'Tarjeta', '2026-10-21');
 insert into pago (id_reserva, cliente, habitacion, monto, metodo_pago, fecha) values (3, 'Luis Gómez', '202', 450.00, 'Efectivo', '2026-10-22');
 insert into pago (id_reserva, cliente, habitacion, monto, metodo_pago, fecha) values (3, 'Luis Gómez', '202', 450.00, 'Efectivo', '2026-10-23');

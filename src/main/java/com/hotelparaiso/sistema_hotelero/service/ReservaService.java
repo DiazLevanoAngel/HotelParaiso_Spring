@@ -68,6 +68,21 @@ public class ReservaService {
         return (int) reservaRepository.countByClienteIgnoreCaseAndEstadoReservaNotAndActivoTrue(cliente, "Cancelada");
     }
 
+    public boolean tieneDescuento(Reserva reserva) {
+        if (reserva == null || reserva.getCheckIn() == null || reserva.getCheckOut() == null
+                || reserva.getMonto() == null) {
+            return false;
+        }
+        Habitacion habitacion = habitacionService.buscarPorNumero(reserva.getHabitacion());
+        var categoria = habitacion == null ? null : categoriaService.buscarPorID(habitacion.getCategoriaId());
+        if (categoria == null) {
+            return false;
+        }
+        long noches = ChronoUnit.DAYS.between(reserva.getCheckIn(), reserva.getCheckOut());
+        double montoNormal = categoria.getPrecio() * noches;
+        return reserva.getMonto() < montoNormal - 0.001;
+    }
+
     public boolean tieneReservasCliente(String cliente) {
         return reservaRepository.existsByClienteIgnoreCaseAndEstadoReservaNotAndActivoTrue(cliente, "Cancelada");
     }
@@ -112,7 +127,7 @@ public class ReservaService {
         reserva.setHuespedes(categoria.getCapacidad());
         long noches = ChronoUnit.DAYS.between(reserva.getCheckIn(), reserva.getCheckOut());
         reserva.setMonto(categoria.getPrecio() * noches);
-        if (contarPorCliente(reserva.getCliente()) >= 4) {
+        if (contarPorCliente(reserva.getCliente()) >= 9) {
             reserva.setMonto(reserva.getMonto() * 0.85);
         }
 
@@ -153,7 +168,7 @@ public class ReservaService {
         long noches = ChronoUnit.DAYS.between(reserva.getCheckIn(), nuevaFechaSalida);
         reserva.setCheckOut(nuevaFechaSalida);
         reserva.setMonto(categoria.getPrecio() * noches);
-        if (contarPorCliente(reserva.getCliente()) >= 5) {
+        if (contarPorCliente(reserva.getCliente()) >= 10) {
             reserva.setMonto(reserva.getMonto() * 0.85);
         }
 
